@@ -1,0 +1,44 @@
+/* Header Styles matching Login Page */
+.app-header {
+    background-color: #13DEB9;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: rgba(255,255,255,0.9);
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    color: white;
+}
+
+.header-user-info {
+    color: white;
+}
+
+.header-user-name {
+    font-weight: 600;
+}
+
+.header-user-role {
+    background-color: #10bba2;
+    color: white;
+}
+
+/* Dropdown menu styling */
+.dropdown-menu {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header-user-info {
+        font-size: 0.75rem;
+    }
+    .header-user-role {
+        padding: 0.1rem 0.3rem;
+        font-size: 0.65rem;
+    }
+}
