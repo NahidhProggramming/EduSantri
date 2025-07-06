@@ -8,70 +8,84 @@ use App\Models\Detail;
 use App\Models\Sekolah;
 use App\Models\TahunAkademik;
 use App\Models\Jadwal;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Writer\Pdf;
 
 class NilaiController extends Controller
 {
     public function index()
     {
-        $tahunList = TahunAkademik::all();
+        $tahunList = TahunAkademik::where('semester_aktif', 'aktif')->get();
         $sekolahList = Sekolah::all();
         return view('nilai.index', compact('tahunList', 'sekolahList'));
     }
 
-    public function getKelasBySekolahTahun(Request $request)
+    public function getKelas(Request $request)
     {
-        $kelasUnik = Detail::with('kelas')
-            ->where('tahun_akademik_id', $request->tahun)
-            ->where('sekolah_id', $request->sekolah)
-            ->select('kelas_id')
+        $tahun = $request->tahun;
+        $sekolah = $request->sekolah;
+
+        // Ambil kelas dari jadwal berdasarkan tahun & sekolah
+        $kelas = Jadwal::where('tahun_akademik_id', $tahun)
+            ->where('sekolah_id', $sekolah)
+            ->with('kelas')
+            ->select('kelas_id') // ambil ID kelas
             ->distinct()
             ->get()
-            ->map(function ($d) {
+            ->map(function ($item) {
                 return [
-                    'id_kelas' => $d->kelas->id_kelas ?? null,
-                    'nama_kelas' => $d->kelas->nama_kelas ?? 'Tidak diketahui',
+                    'id_kelas' => $item->kelas->id_kelas,
+                    'nama_kelas' => $item->kelas->nama_kelas,
                 ];
-            })
-            ->filter(fn($d) => $d['id_kelas'] !== null);
+            });
 
-        return response()->json($kelasUnik->values());
+        return response()->json($kelas);
     }
 
-    public function getSantriByDetail(Request $request)
+    public function getSantri(Request $request)
     {
+        $kelasId = $request->query('kelas');
+        $sekolahId = $request->query('sekolah');
+
         $santriList = Detail::with('santri')
-            ->where('tahun_akademik_id', $request->tahun)
-            ->where('sekolah_id', $request->sekolah)
-            ->where('kelas_id', $request->kelas)
+            ->where('kelas_id', $kelasId)
+            ->where('sekolah_id', $sekolahId)
             ->get()
-            ->map(function ($d) {
+            ->map(function ($detail) {
                 return [
-                    'detail_id' => $d->id_detail,
-                    'nama_santri' => optional($d->santri)->nama_santri ?? 'Tidak Diketahui',
+                    'detail_id' => $detail->id_detail,
+                    'nama_santri' => $detail->santri->nama_santri ?? '-',
                 ];
             });
 
         return response()->json($santriList);
     }
 
-    public function getNilaiDetail($detail_id)
+    public function getDetail($detailId)
     {
-        $nilai = Nilai::with(['jadwal.mataPelajaran', 'jadwal.guru'])
-            ->where('detail_id', $detail_id)
+        $nilai = Nilai::where('detail_id', $detailId)
+            ->with(['jadwal.mataPelajaran', 'tahunAkademik'])
             ->get()
-            ->map(function ($n) {
+            ->map(function ($item) {
                 return [
-                    'nama_mapel' => $n->jadwal->mataPelajaran->nama_mapel ?? '-',
-                    'nama_guru' => $n->jadwal->guru->nama_guru ?? '-',
-                    'nilai_sumatif' => $n->nilai_sumatif,
-                    'nilai_pas' => $n->nilai_pas,
-                    'nilai_pat' => $n->nilai_pat
+                    'mapel' => $item->jadwal->mataPelajaran->nama_mapel ?? '-',
+                    'sumatif' => $item->nilai_sumatif,
+                    'pas' => $item->nilai_pas,
+                    'pat' => $item->nilai_pat,
+                    'tahun' => $item->tahunAkademik->tahun_akademik ?? '-',
                 ];
             });
 
         return response()->json($nilai);
+    }
+    public function cetakRapor($id)
+    {
+        $detail = Detail::with(['santri', 'nilai.jadwal.mataPelajaran'])->findOrFail($id);
+        $nilai = $detail->nilai;
+
+        return view('nilai.cetak', compact('detail', 'nilai'));
     }
 
     // public function store(Request $request)
@@ -175,5 +189,57 @@ class NilaiController extends Controller
 
 
         return view('nilai.guru-index', compact('guru', 'jadwals', 'tahunAktif', 'jumlahSantri', 'aktivitas'));
+    }
+
+    public function cetak($detailId)
+    {
+        $detail = Detail::with([
+            'santri',
+            // 'kelas.waliKelas', // pastikan kelas memuat wali kelas
+            'sekolah',
+            'tahunAkademik'
+        ])->findOrFail($detailId);
+
+        $nilaiList = Nilai::where('detail_id', $detailId)
+            ->with('jadwal.mataPelajaran')
+            ->get()
+            ->map(function ($item) {
+                return (object)[
+                    'mapel' => $item->jadwal->mataPelajaran->nama_mapel ?? '-',
+                    'nilai_sumatif' => $item->nilai_sumatif,
+                    'nilai_pas' => $item->nilai_pas,
+                    'nilai_pat' => $item->nilai_pat,
+                ];
+            });
+
+        // Ambil wali kelas jika ada
+        $waliKelas = optional($detail->kelas->waliKelas)->nama ?? '-';
+
+        // Kirim ke view cetak
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('nilai.cetak', [
+            'santri'     => $detail->santri,
+            'kelas'      => $detail->kelas,
+            'sekolah'    => $detail->sekolah,
+            'tahun'      => $detail->tahunAkademik,
+            'nilaiList'  => $nilaiList,
+            // 'waliKelas'  => $waliKelas,
+        ]);
+
+        return $pdf->stream('rapor-' . $detail->santri->nama_santri . '.pdf');
+    }
+    public function cetakSemua(Request $request)
+    {
+        $kelasId = $request->kelas;
+        $sekolahId = $request->sekolah;
+
+        $details = Detail::with(['santri', 'kelas', 'sekolah', 'tahunAkademik'])
+            ->where('kelas_id', $kelasId)
+            ->where('sekolah_id', $sekolahId)
+            ->get();
+
+        // Buat PDF banyak halaman per santri atau gabungkan
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('nilai.cetak-semua', ['details' => $details]);
+
+        return $pdf->stream('rapor-semua.pdf');
     }
 }

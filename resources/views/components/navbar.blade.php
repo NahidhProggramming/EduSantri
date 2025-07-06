@@ -331,7 +331,7 @@
                                     </a>
                                 </li>
 
-                                <li class="sidebar-item {{ request()->is('nilai*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('nilai-all') ? 'active bg-light' : '' }}">
                                     <a href="{{ route('nilai.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-award"></i></span>
                                         <span class="hide-menu ms-2">Nilai</span>
@@ -387,7 +387,7 @@
                             <span class="hide-menu">Home</span>
                         </li>
                         <li class="sidebar-item {{ request()->is('/nilai') ? 'active bg-light' : '' }}">
-                            <a class="sidebar-link d-flex align-items-center" href="{{ route('nilai.index') }}">
+                            <a class="sidebar-link d-flex align-items-center" href="{{ route('nilai.dashboard') }}">
                                 <span><i class="ti ti-layout-dashboard"></i></span>
                                 <span class="hide-menu ms-2">Dashboard</span>
                             </a>

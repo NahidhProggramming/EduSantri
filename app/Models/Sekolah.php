@@ -13,4 +13,8 @@ class Sekolah extends Model
     public $timestamps = false;
     protected $fillable = ['nama_sekolah'];
 
+    public function nilai()
+{
+    return $this->hasManyThrough(Nilai::class, Detail::class, 'sekolah_id', 'detail_id', 'id_sekolah', 'id_detail');
+}
 }

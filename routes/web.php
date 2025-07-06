@@ -100,19 +100,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
     // Halaman utama nilai
-    Route::get('/nilai', [NilaiController::class, 'index'])->name('nilai.index');
+    Route::get('/nilai-all', [NilaiController::class, 'index'])->name('nilai.index');
+    Route::get('/nilai/kelas', [NilaiController::class, 'getKelas']);
+    Route::get('/nilai/santri', [NilaiController::class, 'getSantri']);
+    Route::get('/nilai/detail/{detailId}', [NilaiController::class, 'getDetail']);
+    Route::get('/rapor/cetak/{id}', [NilaiController::class, 'cetak']);
+    // Route
+    Route::get('/rapor/cetak-semua', [NilaiController::class, 'cetakSemua']);
 
-    // Ambil list kelas berdasarkan sekolah & tahun akademik
-    Route::get('/nilai/kelas', [NilaiController::class, 'getKelasBySekolahTahun'])->name('nilai.kelas');
-
-    // Ambil daftar santri berdasarkan tahun, sekolah, dan kelas
-    Route::get('/nilai/santri', [NilaiController::class, 'getSantriByDetail'])->name('nilai.santri');
-
-    // Ambil detail nilai santri berdasarkan detail_id
-    Route::get('/nilai/detail/{id}', [NilaiController::class, 'getNilaiDetail'])->name('nilai.detail');
-
-    // Simpan nilai (POST)
-    Route::post('/nilai/store', [NilaiController::class, 'store'])->name('nilai.store');
 
 
     // Route Rombongan Belajar (Pembagian Kelas Santri)
@@ -146,9 +141,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 // Guru routes
 Route::middleware(['auth', 'role:guru'])->group(function () {
-    Route::get('/nilai', [NilaiController::class, 'daftarJadwalGuru'])->name('nilai.index');
+    Route::get('/nilai', [NilaiController::class, 'daftarJadwalGuru'])->name('nilai.dashboard');
     Route::post('/nilai/store', [NilaiController::class, 'store'])->name('nilai.store');
-// opsional
+    // opsional
     Route::get('/nilai/input/{jadwal}', [NilaiController::class, 'input'])->name('nilai.input');
 });
 
