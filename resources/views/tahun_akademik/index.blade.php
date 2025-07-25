@@ -24,19 +24,20 @@
                 </div>
 
                 @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Sukses!</strong> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
                     </div>
                 @endif
 
                 <table class="table table-striped">
                     <thead>
                         <tr class="text-center">
-                            <th>No</th>
+                            <th>Aksi</th>
+                            <th>Keterangan</th>
+                            {{-- <th>No</th> --}}
                             <th>Tahun Akademik</th>
                             <th>Semester</th>
-                            <th>Keterangan</th>
-                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="akademik-table-body">
@@ -85,7 +86,7 @@
                             </div>
                         </div>
                     </div>
-                  <div class="modal-footer">
+                    <div class="modal-footer">
                         <button type="submit" class="btn btn-success">Simpan</button>
                     </div>
                 </form>

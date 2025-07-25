@@ -1,8 +1,7 @@
 <tbody>
     @forelse ($sekolahs as $sekolah)
         <tr class="text-center">
-            <td>{{ $loop->iteration }}</td>
-            <td>{{ $sekolah->nama_sekolah }}</td>
+            {{-- <td>{{ $loop->iteration }}</td> --}}
             <td>
                 <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-2">
                     <button class="btn btn-warning btn-sm rounded-pill d-flex align-items-center gap-1"
@@ -20,6 +19,7 @@
                     </form>
                 </div>
             </td>
+            <td>{{ $sekolah->nama_sekolah }}</td>
         </tr>
     @empty
         <tr>

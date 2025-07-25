@@ -9,6 +9,7 @@ use App\Models\Sekolah;
 use App\Models\TahunAkademik;
 use App\Models\Jadwal;
 use App\Models\Kelas;
+use App\Models\Santri;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf;
@@ -82,11 +83,19 @@ class NilaiController extends Controller
     }
     public function cetakRapor($id)
     {
-        $detail = Detail::with(['santri', 'nilai.jadwal.mataPelajaran'])->findOrFail($id);
-        $nilai = $detail->nilai;
+        $detail = Detail::with([
+            'santri',
+            'kelas.waliKelas', // relasi ke guru sebagai wali kelas
+            'nilai.jadwal.mataPelajaran'
+        ])->findOrFail($id);
 
-        return view('nilai.cetak', compact('detail', 'nilai'));
+        $nilai = $detail->nilai;
+        $kelas = $detail->kelas;
+        $waliKelas = $kelas?->waliKelas?->nama_guru ?? '-';
+
+        return view('nilai.cetak', compact('detail', 'nilai', 'kelas', 'waliKelas'));
     }
+
 
     // public function store(Request $request)
     // {
@@ -176,57 +185,97 @@ class NilaiController extends Controller
 
     public function daftarJadwalGuru()
     {
-        $user = auth()->user();
-        $guru = $user->guru; // pastikan relasi user->guru ada
 
-        $jadwals = \App\Models\Jadwal::with(['mataPelajaran', 'kelas'])
-            ->where('guru_id', $guru->id_guru)
+        $user = auth()->user();
+        $guru = $user->guru;                         // relasi User → Guru
+
+        if (!$guru) {
+            abort(404, 'Akun ini tidak ter‑hubung dengan data Guru.');
+        }
+
+        $totalJadwalGuru = $guru->jadwal()->count();
+
+        $totalKelasGuru  = $guru->jadwal()
+            ->distinct('kelas_id')
+            ->count('kelas_id');
+
+        $kelasIDs        = $guru->jadwal()->pluck('kelas_id');
+        $totalSiswaGuru  = Detail::whereIn('kelas_id', $kelasIDs)
+            ->distinct('santri_id')
+            ->count('santri_id');
+
+        $jadwals   = $guru->jadwal()
+            ->with(['mataPelajaran', 'kelas'])
             ->get();
 
-        $tahunAktif = \App\Models\TahunAkademik::where('semester_aktif', 'aktif')->first();
-        $jumlahSantri = \App\Models\Santri::count();
-        $aktivitas = AktivitasGuru::where('guru_id', $guru->id_guru)->latest()->take(5)->get();
+        $tahunAktif   = TahunAkademik::where('semester_aktif', 'aktif')->first();
+        $jumlahSantri = Santri::count();
 
+        $aktivitas    = AktivitasGuru::where('guru_id', $guru->id_guru)
+            ->latest()
+            ->take(5)
+            ->get();
 
-        return view('nilai.guru-index', compact('guru', 'jadwals', 'tahunAktif', 'jumlahSantri', 'aktivitas'));
+        return view('nilai.guru-index', [
+            'guru'             => $guru,
+            'jadwals'          => $jadwals,
+            'tahunAktif'       => $tahunAktif,
+            'jumlahSantri'     => $jumlahSantri,
+            'aktivitas'        => $aktivitas,
+            'totalJadwalGuru'  => $totalJadwalGuru,
+            'totalKelasGuru'   => $totalKelasGuru,
+            'totalSiswaGuru'   => $totalSiswaGuru,
+        ]);
     }
 
     public function cetak($detailId)
     {
         $detail = Detail::with([
             'santri',
-            // 'kelas.waliKelas', // pastikan kelas memuat wali kelas
+            'kelas',
             'sekolah',
             'tahunAkademik'
         ])->findOrFail($detailId);
 
-        $nilaiList = Nilai::where('detail_id', $detailId)
+        $user = auth()->user();
+
+        /* --- RULE AKSES -------------------------------------------------
+       • admin & kesiswaan      => selalu boleh
+       • wali_santri            => hanya jika wali_id = user.id
+       • guru                   => (contoh) tidak diizinkan
+    -----------------------------------------------------------------*/
+        if ($user->hasRole('admin|kesiswaan')) {
+            // pass
+        } elseif ($user->hasRole('wali_santri')) {
+            if ($detail->santri->wali_id !== $user->id) {
+                abort(403, 'Anda tidak berhak mengunduh rapor ini.');
+            }
+        } else {
+            abort(403, 'Unauthorized action.');
+        }
+
+        /* -------- generate PDF -------- */
+        $nilaiList = $detail->nilai()
             ->with('jadwal.mataPelajaran')
             ->get()
-            ->map(function ($item) {
-                return (object)[
-                    'mapel' => $item->jadwal->mataPelajaran->nama_mapel ?? '-',
-                    'nilai_sumatif' => $item->nilai_sumatif,
-                    'nilai_pas' => $item->nilai_pas,
-                    'nilai_pat' => $item->nilai_pat,
-                ];
-            });
+            ->map(fn($n) => (object)[
+                'mapel'         => $n->jadwal->mataPelajaran->nama_mapel ?? '-',
+                'nilai_sumatif' => $n->nilai_sumatif,
+                'nilai_pas'     => $n->nilai_pas,
+                'nilai_pat'     => $n->nilai_pat,
+            ]);
 
-        // Ambil wali kelas jika ada
-        $waliKelas = optional($detail->kelas->waliKelas)->nama ?? '-';
-
-        // Kirim ke view cetak
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('nilai.cetak', [
-            'santri'     => $detail->santri,
-            'kelas'      => $detail->kelas,
-            'sekolah'    => $detail->sekolah,
-            'tahun'      => $detail->tahunAkademik,
-            'nilaiList'  => $nilaiList,
-            // 'waliKelas'  => $waliKelas,
+            'santri'    => $detail->santri,
+            'kelas'     => $detail->kelas,
+            'sekolah'   => $detail->sekolah,
+            'tahun'     => $detail->tahunAkademik,
+            'nilaiList' => $nilaiList,
         ]);
 
         return $pdf->stream('rapor-' . $detail->santri->nama_santri . '.pdf');
     }
+
     public function cetakSemua(Request $request)
     {
         $kelasId = $request->kelas;
@@ -241,5 +290,21 @@ class NilaiController extends Controller
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('nilai.cetak-semua', ['details' => $details]);
 
         return $pdf->stream('rapor-semua.pdf');
+    }
+    public function nilaiWali()
+    {
+        $user = Auth::user();
+
+        // relasi hasMany santri() sudah dibuat
+        $santriList = $user->santri()
+            ->with([
+                'nilai.tahunAkademik',
+                'nilai.jadwal.mataPelajaran',
+                'kelasAktif.sekolah',
+                'sekolahAktif'
+            ])
+            ->get();
+
+        return view('nilai.santri-nilai', compact('santriList'));
     }
 }

@@ -1,16 +1,6 @@
 <tbody>
     @forelse ($akademiks as $akademik)
         <tr class="text-center">
-            <td>{{ $loop->iteration }}</td>
-            <td>{{ $akademik->tahun_akademik }}</td>
-            <td>{{ $akademik->semester }}</td>
-            <td>
-                @if ($akademik->semester_aktif === 'Aktif')
-                    <span class="badge bg-success">Aktif</span>
-                @else
-                    <span class="badge bg-danger">Tidak Aktif</span>
-                @endif
-            </td>
             <td>
                 <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-2">
                     <button type="button"
@@ -32,6 +22,16 @@
                     </form>
                 </div>
             </td>
+            <td>
+                @if ($akademik->semester_aktif === 'Aktif')
+                    <span class="badge bg-success">Aktif</span>
+                @else
+                    <span class="badge bg-danger">Tidak Aktif</span>
+                @endif
+            </td>
+            {{-- <td>{{ $loop->iteration }}</td> --}}
+            <td>{{ $akademik->tahun_akademik }}</td>
+            <td>{{ $akademik->semester }}</td>
         </tr>
     @empty
         <tr>

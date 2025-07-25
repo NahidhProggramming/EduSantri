@@ -25,8 +25,9 @@ class KelasController extends Controller
                 'pagination' => $kelass->links('pagination::bootstrap-5')->render(),
             ]);
         }
+        $guruList = \App\Models\Guru::all();
 
-        return view('kelas.index', compact('kelass'));
+        return view('kelas.index', compact('kelass', 'guruList'));
     }
 
     public function store(Request $request)
@@ -34,11 +35,13 @@ class KelasController extends Controller
         $request->validate([
             'nama_kelas' => 'required|string|max:100',
             'tingkat' => 'required|string|max:10',
+            'wali_kelas_id' => 'nullable|exists:guru,id_guru',
         ]);
 
         Kelas::create([
             'nama_kelas' => $request->nama_kelas,
             'tingkat' => $request->tingkat,
+            'wali_kelas_id' => $request->wali_kelas_id,
         ]);
 
         return redirect()->route('kelas.index')->with('success', 'Kelas berhasil ditambahkan.');
@@ -49,6 +52,7 @@ class KelasController extends Controller
         $request->validate([
             'nama_kelas' => 'required|string|max:100',
             'tingkat' => 'required|string|max:10',
+            'wali_kelas_id' => 'nullable|exists:guru,id_guru',
         ]);
 
         $kelas = Kelas::findOrFail($id);

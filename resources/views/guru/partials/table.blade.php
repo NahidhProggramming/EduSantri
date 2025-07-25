@@ -1,12 +1,6 @@
 @forelse ($gurus as $guru)
     <tr class="text-center">
-        <td>{{ $loop->iteration + $gurus->firstItem() - 1 }}</td>
-        <td>{{ $guru->nip }}</td>
-        <td>{{ $guru->nama_guru }}</td>
-        <td>{{ $guru->jenis_kelamin }}</td>
-        <td>{{ $guru->tanggal_lahir }}</td>
-        <td>{{ $guru->alamat }}</td>
-        <td>{{ $guru->no_whatsapp }}</td>
+        {{-- <td>{{ $loop->iteration + $gurus->firstItem() - 1 }}</td> --}}
         <td class="text-center">
             <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-2">
                 <button type="button" class="btn btn-warning btn-sm rounded-pill btn-edit-guru"
@@ -25,6 +19,12 @@
                 </form>
             </div>
         </td>
+        <td>{{ $guru->nip }}</td>
+        <td>{{ $guru->nama_guru }}</td>
+        <td>{{ $guru->jenkel == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+        <td>{{ $guru->tgl_lahir ? \Carbon\Carbon::parse($guru->tgl_lahir)->format('d-m-Y') : '-' }}</td>
+        <td>{{ $guru->alamat }}</td>
+        <td>{{ $guru->no_hp }}</td>
     </tr>
 @empty
     <tr>

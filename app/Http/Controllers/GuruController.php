@@ -42,17 +42,14 @@ class GuruController extends Controller
             'no_hp' => 'required',
         ]);
 
-        // 1. Buat user terlebih dahulu
         $user = User::create([
             'name' => $request->nama_guru,
             'username' => $request->nip,
             'password' => Hash::make($request->nip),
         ]);
 
-        // 2. Beri role guru
         $user->assignRole('guru');
 
-        // 3. Buat guru dan hubungkan dengan user
         Guru::create([
             'nip' => $request->nip,
             'nama_guru' => $request->nama_guru,
@@ -60,7 +57,7 @@ class GuruController extends Controller
             'tgl_lahir' => $request->tgl_lahir,
             'alamat' => $request->alamat,
             'no_hp' => $request->no_hp,
-            'user_id' => $user->id, // ← ini yang penting
+            'user_id' => $user->id,
         ]);
 
         return redirect()->route('guru.index')->with('success', 'Guru berhasil ditambahkan.');
@@ -72,6 +69,9 @@ class GuruController extends Controller
         $request->validate([
             'nama_guru' => 'required',
             'nip' => 'required',
+            'jenkel' => 'required|string|in:L,P',
+            'tgl_lahir' => 'required|date',
+            'alamat' => 'required',
             'no_hp' => 'required',
         ]);
 

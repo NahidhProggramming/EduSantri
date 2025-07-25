@@ -2,12 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Guru;
 use App\Models\Jadwal;
-use App\Models\Kelas;
-use App\Models\MataPelajaran;
-use App\Models\Sekolah;
-use App\Models\TahunAkademik;
 use Illuminate\Http\Request;
 
 class JadwalController extends Controller
@@ -30,7 +25,6 @@ class JadwalController extends Controller
             'kelasList'
         ));
     }
-
 
     public function getByTahun($id)
     {
@@ -60,16 +54,16 @@ class JadwalController extends Controller
         return response()->json($jadwals);
     }
 
-    public function create()
-    {
-        return view('jadwal.create', [
-            'guruList'    => Guru::all(),
-            'mapelList'   => MataPelajaran::all(),
-            'tahunList'   => TahunAkademik::all(),
-            'sekolahList' => Sekolah::all(),
-            'kelasList'   => Kelas::all(),
-        ]);
-    }
+    // public function create()
+    // {
+    //     return view('jadwal.create', [
+    //         'guruList'    => Guru::all(),
+    //         'mapelList'   => MataPelajaran::all(),
+    //         'tahunList'   => TahunAkademik::all(),
+    //         'sekolahList' => Sekolah::all(),
+    //         'kelasList'   => Kelas::all(),
+    //     ]);
+    // }
 
 
     public function store(Request $request)
@@ -121,23 +115,25 @@ class JadwalController extends Controller
 
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil ditambahkan.');
     }
-    public function edit($id)
-    {
-        $jadwal = Jadwal::findOrFail($id);
 
-        return response()->json([
-            'id' => $jadwal->id_jadwal,
-            'guru_id' => $jadwal->guru_id,
-            'mata_pelajaran_id' => $jadwal->mata_pelajaran_id,
-            'tahun_akademik_id' => $jadwal->tahun_akademik_id,
-            'sekolah_id' => $jadwal->sekolah_id,
-            'kelas_id' => $jadwal->kelas_id,
-            'hari' => $jadwal->hari,
-            'jam_mulai' => $jadwal->jam_mulai,
-            'jam_selesai' => $jadwal->jam_selesai,
-            'status' => $jadwal->status,
-        ]);
-    }
+    // public function edit($id)
+    // {
+    //     $jadwal = Jadwal::findOrFail($id);
+
+    //     return response()->json([
+    //         'id' => $jadwal->id_jadwal,
+    //         'guru_id' => $jadwal->guru_id,
+    //         'mata_pelajaran_id' => $jadwal->mata_pelajaran_id,
+    //         'tahun_akademik_id' => $jadwal->tahun_akademik_id,
+    //         'sekolah_id' => $jadwal->sekolah_id,
+    //         'kelas_id' => $jadwal->kelas_id,
+    //         'hari' => $jadwal->hari,
+    //         'jam_mulai' => $jadwal->jam_mulai,
+    //         'jam_selesai' => $jadwal->jam_selesai,
+    //         'status' => $jadwal->status,
+    //     ]);
+    // }
+
     public function update(Request $request, $id)
     {
         $jamOptions = [

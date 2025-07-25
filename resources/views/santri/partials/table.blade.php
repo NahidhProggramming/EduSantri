@@ -1,9 +1,5 @@
 @forelse ($santris as $santri)
     <tr class="text-center">
-        <td>{{ $loop->index + $santris->firstItem() }}</td>
-        <td>{{ $santri->nama_santri ?? '-' }}</td>
-        <td>{{ $santri->jenis_kelamin ?? '-' }}</td>
-        <td>{{ $santri->alamat ?? '-' }}</td>
         <td class="text-center">
             <div class="d-flex flex-column flex-md-row align-items-center gap-2">
                 <a href="{{ route('santri.show', $santri->nis) }}"
@@ -29,6 +25,10 @@
                 </form>
             </div>
         </td>
+         {{-- <td>{{ $startNumber + $loop->iteration }}</td> --}}
+        <td>{{ $santri->nama_santri ?? '-' }}</td>
+        <td>{{ $santri->jenis_kelamin ?? '-' }}</td>
+        <td>{{ $santri->alamat ?? '-' }}</td>
     </tr>
 @empty
     <tr>

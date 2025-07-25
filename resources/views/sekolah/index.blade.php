@@ -30,7 +30,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr class="text-center">
-                            <th>No</th>
+                            <th>Aksi</th>
                             <th>Nama Sekolah</th>
                         </tr>
                     </thead>

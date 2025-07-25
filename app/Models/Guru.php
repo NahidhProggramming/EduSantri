@@ -18,6 +18,10 @@ class Guru extends Model
     }
     public function user()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    public function kelasWali()
+    {
+        return $this->hasMany(Kelas::class, 'wali_kelas_id', 'id_guru');
     }
 }

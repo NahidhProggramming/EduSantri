@@ -11,7 +11,8 @@ class JenisPelanggaran extends Model
 
     protected $table = 'jenis_pelanggaran';
     protected $primaryKey = 'id_jenis';
-    protected $fillable = ['nama_jenis'];
+    public $timestamps = false;
+    protected $fillable = ['nama_jenis', 'tingkatan', 'poin'];
 
     public function pelanggarans()
     {

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Imports\SantriImport;
+use App\Models\Nilai;
 use App\Models\Santri;
+use App\Models\TahunAkademik;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,14 +17,18 @@ class SantriController extends Controller
 {
     public function downloadTemplate()
     {
+
         $file = public_path('templates/template_santri.xlsx');
 
         if (!file_exists($file)) {
-            abort(404, 'Template tidak ditemukan');
+            return abort(404, 'Template tidak ditemukan');
         }
 
-        return response()->download($file);
+        return response()->download($file, 'template_santri.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
+
 
     public function importExcel(Request $request)
     {
@@ -34,26 +40,34 @@ class SantriController extends Controller
 
         return redirect()->route('santri.index')->with('success', 'Data santri berhasil diimport.');
     }
+
     public function index(Request $request)
     {
         $search = $request->input('search');
 
         $query = Santri::query();
 
-        if ($search) {
+        if (!empty($search)) {
             $query->where('nama_santri', 'like', '%' . $search . '%');
         }
 
         $santris = $query->paginate(10);
 
+        $startNumber = ($santris->currentPage() - 1) * $santris->perPage();
+
         if ($request->ajax()) {
             return response()->json([
-                'table' => view('santri.partials.table', compact('santris'))->render(),
-                'pagination' => view('santri.partials.pagination', compact('santris'))->render(),
+                'table' => view('santri.partials.table', [
+                    'santris' => $santris,
+                    'startNumber' => $startNumber
+                ])->render(),
+                'pagination' => view('santri.partials.pagination', [
+                    'santris' => $santris
+                ])->render(),
             ]);
         }
 
-        return view('santri.index', compact('santris'));
+        return view('santri.index', compact('santris', 'startNumber'));
     }
 
     public function store(Request $request)
@@ -71,15 +85,13 @@ class SantriController extends Controller
             'no_hp' => 'required|string',
         ]);
 
-        $tahunMasuk = 2022; // Bisa kamu buat dinamis dari input kalau mau
+        $tahunMasuk = 2022;
         $prefix = (string) $tahunMasuk;
 
-        // Ambil NIS terakhir yang dimulai dengan tahun masuk tersebut
         $lastSantri = Santri::where('nis', 'like', $prefix . '%')
             ->orderBy('nis', 'desc')
             ->first();
 
-        // Ambil angka urut terakhir
         $lastNumber = 0;
         if ($lastSantri) {
             $lastNumber = (int) substr($lastSantri->nis, strlen($prefix));
@@ -88,8 +100,13 @@ class SantriController extends Controller
         $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         $nis = $prefix . $newNumber; // Contoh: 20221155
 
+        $user = User::create([
+            'name'     => $request->nama_santri,
+            'username' => $nis,                 // username = NIS
+            'password' => Hash::make($nis),     // password default = NIS
+        ]);
+        $user->assignRole('wali_santri');
 
-        // Simpan santri
         Santri::create([
             'nis' => $nis,
             'nisn' => $request->nisn,
@@ -102,14 +119,8 @@ class SantriController extends Controller
             'ayah' => $request->ayah,
             'ibu' => $request->ibu,
             'no_hp' => $request->no_hp,
+            'wali_id'       => $user->id,
         ]);
-
-        // Buat user dari NIS
-        User::create([
-            'name' => $request->nama_santri,
-            'username' => $nis,
-            'password' => Hash::make($nis),
-        ])->assignRole('wali_santri');
 
         return redirect()->route('santri.index')->with('success', 'Santri dan User berhasil ditambahkan.');
     }
@@ -122,7 +133,6 @@ class SantriController extends Controller
 
     public function update(Request $request, $nis)
     {
-        // Validate the request input
         $validatedData = $request->validate([
             'nisn' => 'nullable|numeric',
             'nama_santri' => 'required|string|max:255',
@@ -179,25 +189,66 @@ class SantriController extends Controller
         return redirect()->route('santri.index')->with('success', 'Data santri dan user berhasil dihapus.');
     }
 
-    /**
-     * Display santri profile for wali
-     */
-    public function waliSantri(Request $request)
-    {
-        // Get santri with all related data through the User model relationship
-        $santri = auth()->user()->santri;
 
-        if (!$santri) {
-            return redirect()->back()
-                ->with('error', 'Santri tidak ditemukan. Pastikan data orang tua terhubung dengan santri.');
+    public function WaliSantri(Request $request)
+    {
+        $user = auth()->user();
+
+        // Ambil santri berdasarkan ID user yang login sebagai wali (jika ada)
+        $santri = \App\Models\Santri::where('wali_id', $user->id)
+            ->with([
+                'detail.sekolah',
+                'detail.kelas',
+                'wali'
+            ])
+            ->first();
+
+        return view('santri.wali', compact(
+            'santri'
+        ));
+    }
+
+
+    public function pelanggaranSantri()
+    {
+        $santri = auth()->user()->santri()->firstOrFail();   // pk = nis
+
+        /* --- NILAI per Mapel --- */
+        $nilaiPerMapel = Nilai::query()
+            ->join('detail', 'detail.id_detail', '=', 'nilai.detail_id')
+            ->join('jadwal', 'jadwal.id_jadwal', '=', 'nilai.jadwal_id')
+            ->join('mata_pelajaran AS mp', 'mp.id_mapel', '=', 'jadwal.mata_pelajaran_id')
+            ->where('detail.santri_id', $santri->nis)         // ← gunakan nis
+            ->selectRaw("
+            mp.nama_mapel,
+            ROUND(AVG(
+                COALESCE(nilai_sumatif,0) +
+                COALESCE(nilai_pas,0) +
+                COALESCE(nilai_pat,0)
+            ) / 3, 2) AS rata
+        ")
+            ->groupBy('mp.nama_mapel')
+            ->orderBy('mp.nama_mapel')
+            ->get();
+
+        /* --- PELANGGARAN per bulan --- */
+        $tahun = now()->year;
+        $pelanggaranBulanan = $santri->pelanggarans()
+            ->whereYear('tanggal', $tahun)
+            ->selectRaw('MONTH(tanggal) bulan, COUNT(*) jml')
+            ->groupBy('bulan')
+            ->pluck('jml', 'bulan')
+            ->all();
+
+        $pelChart = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $pelChart[] = $pelanggaranBulanan[$i] ?? 0;
         }
 
-        // The relationships are already loaded via the User model's santri() method
-        return view('santri.wali', [
-            'santri' => $santri,
-            'alamat' => $santri->alamat,
-            'kelasFormal' => $santri->kelasFormal,
-            'kelasNonFormal' => $santri->kelasNonFormal
+        return view('santri.grafik', [
+            'nilaiMapel' => $nilaiPerMapel,
+            'pelChart'   => $pelChart,
+            'tahunChart' => $tahun
         ]);
     }
 }

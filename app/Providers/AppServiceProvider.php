@@ -39,5 +39,6 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('jadwals', $jadwals);
             }
         });
+        
     }
 }

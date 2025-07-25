@@ -5,56 +5,41 @@
     <div class="container-fluid">
         <h4 class="fw-bold mb-4">Selamat Datang, {{ $guru->nama_guru }}</h4>
 
-        {{-- Statistik Ringkas Modern --}}
-        <div class="row mb-4">
-            {{-- Tahun Akademik Aktif --}}
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="bg-light-primary p-3 rounded-circle me-3">
-                            <i class="ti ti-calendar-event text-primary fs-4"></i>
+        @php
+            $cardsGuru = [
+                ['Total Jadwal Mengajar', $totalJadwalGuru, 'calendar-event', 'primary', 5],
+                ['Total Kelas Diampu', $totalKelasGuru, 'books', 'success', 4],
+                ['Total Siswa Binaan', $totalSiswaGuru, 'user-plus', 'info', 6],
+                // tambahkan kartu ke‑4 di sini bila ingin 4‑kolom/row
+            ];
+        @endphp
+
+        <div class="row gy-3 mb-4">
+            @foreach ($cardsGuru as [$label, $angka, $icon, $color, $pct])
+                <div class="col-12 col-md-6 col-lg-{{ count($cardsGuru) == 4 ? 3 : 4 }}">
+                    <div class="card shadow-sm border-0 overflow-hidden position-relative h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-{{ $color }} bg-opacity-10 rounded p-3 me-3">
+                                    <i class="ti ti-{{ $icon }} fs-5 text-{{ $color }}"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">{{ $label }}</h6>
+                                    <h3 class="fw-semibold mb-0">{{ $angka }}</h3>
+                                </div>
+                            </div>
+
+                          
                         </div>
-                        <div>
-                            <p class="mb-1 text-muted">Tahun Akademik Aktif</p>
-                            <h5 class="fw-semibold mb-0">{{ $tahunAktif->tahun_akademik ?? 'Belum Ada' }}</h5>
-                        </div>
+
+                        <i
+                            class="ti ti-arrow-up-right-circle fs-6 position-absolute top-0 end-0 mt-3 me-3 text-{{ $color }}"></i>
                     </div>
                 </div>
-            </div>
-
-            {{-- Total Jadwal Mengajar --}}
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="bg-light-info p-3 rounded-circle me-3">
-                            <i class="ti ti-notebook text-info fs-4"></i>
-                        </div>
-                        <div>
-                            <p class="mb-1 text-muted">Total Jadwal Mengajar</p>
-                            <h5 class="fw-semibold mb-0">{{ $jadwals->count() }} Jadwal</h5>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Jumlah Santri --}}
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="bg-light-success p-3 rounded-circle me-3">
-                            <i class="ti ti-users text-success fs-4"></i>
-                        </div>
-                        <div>
-                            <p class="mb-1 text-muted">Jumlah Santri</p>
-                            <h5 class="fw-semibold mb-0" id="jumlahSantri">0 Santri</h5>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
 
+        {{-- =================  JADWAL MENGAJAR (card)  ================= --}}
         <div class="card shadow-sm mb-4">
             <div class="card-body">
                 <h5 class="card-title fw-semibold mb-4">
@@ -63,39 +48,61 @@
 
                 @if ($jadwals->isEmpty())
                     <div class="alert alert-warning text-center py-3">
-                        <i class="ti ti-alert-circle me-2"></i> Belum ada jadwal mengajar yang tersedia.
+                        <i class="ti ti-alert-circle me-2"></i> Belum ada jadwal mengajar tersedia.
                     </div>
                 @else
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light text-center">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Mata Pelajaran</th>
-                                    <th>Kelas</th>
-                                    <th>Hari</th>
-                                    <th>Jam Mulai</th>
-                                    <th>Jam Selesai</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-center">
-                                @foreach ($jadwals as $i => $jadwal)
-                                    <tr>
-                                        <td>{{ $i + 1 }}</td>
-                                        <td>{{ $jadwal->mataPelajaran->nama_mapel ?? '-' }}</td>
-                                        <td>{{ $jadwal->kelas->nama_kelas ?? '-' }}</td>
-                                        <td>{{ ucfirst($jadwal->hari) }}</td>
-                                        <td>{{ $jadwal->jam_mulai }}</td>
-                                        <td>{{ $jadwal->jam_selesai }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    {{-- Grid 100% lebar ⇒ col‑12 di mobile,  2 kolom di md, 3 kolom di lg --}}
+                    <div class="row g-3">
+                        @foreach ($jadwals as $jadwal)
+                            @php
+                                // warna gelombang biar variatif ‑ berdasarkan hari
+                                $warna =
+                                    [
+                                        'senin' => 'primary',
+                                        'selasa' => 'success',
+                                        'rabu' => 'info',
+                                        'kamis' => 'warning',
+                                        'jumat' => 'danger',
+                                        'sabtu' => 'secondary',
+                                        'minggu' => 'dark',
+                                    ][strtolower($jadwal->hari)] ?? 'primary';
+                            @endphp
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div
+                                    class="border rounded h-100 p-3 position-relative bg-{{ $warna }} bg-opacity-10">
+
+                                    {{-- Badge hari --}}
+                                    <span
+                                        class="badge bg-{{ $warna }} position-absolute top-0 start-50 translate-middle-x">
+                                        {{ ucfirst($jadwal->hari) }}
+                                    </span>
+
+                                    {{-- Mata pelajaran --}}
+                                    <h6 class="fw-semibold mt-4 mb-1 text-{{ $warna }}">
+                                        {{ $jadwal->mataPelajaran->nama_mapel ?? '-' }}
+                                    </h6>
+
+                                    {{-- Kelas --}}
+                                    <p class="mb-2 small text-muted">
+                                        <i class="ti ti-users me-1"></i>
+                                        {{ $jadwal->kelas->nama_kelas ?? '-' }}
+                                    </p>
+
+                                    {{-- Jam --}}
+                                    <div class="d-flex align-items-center gap-2 small">
+                                        <i class="ti ti-clock text-{{ $warna }}"></i>
+                                        {{ \Carbon\Carbon::createFromFormat('H:i:s', $jadwal->jam_mulai)->format('H:i') }}
+                                        &nbsp;—&nbsp;
+                                        {{ \Carbon\Carbon::createFromFormat('H:i:s', $jadwal->jam_selesai)->format('H:i') }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 @endif
             </div>
         </div>
-
 
 
         <div class="col-lg-6 mb-4">

@@ -106,9 +106,6 @@
                             <div class="d-grid mb-3">
                                 <button type="submit" class="btn btn-primary">Masuk Sekarang</button>
                             </div>
-                            <div class="mb-3 text-end">
-                                <a href="{{ route('password.request') }}">Lupa kata sandi?</a>
-                            </div>
                         </form>
                         <hr>
                     </div>

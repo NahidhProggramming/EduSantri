@@ -79,7 +79,7 @@
 
 <body>
     <!-- Auth Navbar Component -->
-    <x-auth-navbar active="home"/>
+    <x-auth-navbar active="home" />
 
     <!-- Main Content -->
     <main>
@@ -93,6 +93,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 
 </body>
 

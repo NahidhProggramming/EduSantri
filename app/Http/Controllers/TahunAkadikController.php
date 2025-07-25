@@ -52,20 +52,21 @@ class TahunAkadikController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'tahun_akademik' => 'required|string|max:100',
             'semester' => 'required|in:Ganjil,Genap',
             'semester_aktif' => 'required|in:Aktif,Tidak',
         ]);
 
-        $akademik = TahunAkademik::findOrFail($id);
+        $tahunAkademik = TahunAkademik::findOrFail($id);
 
-        $akademik->update([
+        $tahunAkademik->update([
             'semester' => $request->semester,
             'semester_aktif' => $request->semester_aktif,
         ]);
 
         return redirect()->route('akademik.index')->with('success', 'Tahun Akademik berhasil diperbarui.');
     }
+
+
 
 
     public function destroy($id)

@@ -1,8 +1,6 @@
 @forelse ($kelass as $kelas)
     <tr class="text-center">
-        <td>{{ $loop->iteration + $kelass->firstItem() - 1 }}</td>
-        <td>{{ $kelas->nama_kelas }}</td>
-        <td>{{ $kelas->tingkat }}</td>
+        {{-- <td>{{ $loop->iteration + $kelass->firstItem() - 1 }}</td> --}}
         <td>
             <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-2">
                 <button class="btn btn-warning btn-sm rounded-pill d-flex align-items-center gap-1" data-bs-toggle="modal"
@@ -19,6 +17,8 @@
                 </form>
             </div>
         </td>
+        <td>{{ $kelas->nama_kelas }}</td>
+        <td>{{ $kelas->tingkat }}</td>
     </tr>
 @empty
     <tr>

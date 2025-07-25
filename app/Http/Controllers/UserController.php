@@ -23,9 +23,23 @@ class UserController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $users = $query->paginate(10);
+      $users = $query->paginate(10);
 
-        return view('user.index', compact('users'));
+        $startNumber = ($users->currentPage() - 1) * $users->perPage();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('user.partials.table', [
+                    'users' => $users,
+                    'startNumber' => $startNumber
+                ])->render(),
+                'pagination' => view('user.partials.pagination', [
+                    'users' => $users
+                ])->render(),
+            ]);
+        }
+
+        return view('user.index', compact('users', 'startNumber'));
     }
 
     public function create()

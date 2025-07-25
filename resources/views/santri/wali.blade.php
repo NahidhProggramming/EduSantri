@@ -1,136 +1,113 @@
 @extends('layouts.home')
 
 @section('title', 'Profil Santri - Edu Santri')
+
 @section('content')
     <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{{ route('home') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle"></i> Kembali
+            </a>
+        </div>
         <div class="card shadow-sm">
-            <div class="card-header" style="background-color: #13DEB9; color: white;">
+            <div class="card-header text-white" style="background-color: #13DEB9;">
                 <h4 class="mb-0">Profil Santri</h4>
             </div>
+
             <div class="card-body">
                 <div class="row">
-                    <!-- Foto Santri -->
+                    {{-- FOTO PROFIL --}}
                     <div class="col-md-4 text-center">
                         <img src="{{ asset('images/profile/user-1.jpg') }}" class="img-fluid rounded-circle mb-3"
-                            style="width: 200px; height: 200px; object-fit: cover;" alt="Foto Santri">
-                        <h4 class="mt-3">{{ $santri->nama }}</h4>
+                            style="width: 180px; height: 180px; object-fit: cover;" alt="Foto Santri">
+                        <h5 class="mt-2">{{ $santri->nama_santri }}</h5>
                         <p class="text-muted">NIS: {{ $santri->nis }}</p>
                     </div>
 
-                    <!-- Data Santri -->
+                    {{-- DATA SANTRI --}}
                     <div class="col-md-8">
                         <div class="row">
+                            {{-- Data Pribadi --}}
                             <div class="col-md-6">
-                                <h5 style="color: #13DEB9;">Data Pribadi</h5>
-                                <ul class="list-group list-group-flush mb-4">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <h5 class="text-success">Data Pribadi</h5>
+                                <ul class="list-group list-group-flush mb-3">
+                                    <li class="list-group-item d-flex justify-content-between">
                                         <span>NISN</span>
                                         <span>{{ $santri->nisn ?? '-' }}</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>NIK</span>
-                                        <span>{{ $santri->nik ?? '-' }}</span>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Tempat Lahir</span>
+                                        <span>{{ $santri->tempat_lahir ?? '-' }}</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Tanggal Lahir</span>
+                                        <span>{{ \Carbon\Carbon::parse($santri->tanggal_lahir)->translatedFormat('d F Y') }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
                                         <span>Jenis Kelamin</span>
-                                        <span>{{ $santri->jenkel == 'L' ? 'Laki-laki' : 'Perempuan' }}</span>
+                                        <span>{{ $santri->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</span>
                                     </li>
                                     <li class="list-group-item">
-                                        <div class="d-flex justify-content-between">
-                                            <span>Alamat</span>
-                                            <div class="text-end" style="max-width: 60%">
-                                                <span>{{ $santri->alamat->desa ?? '-' }}</span><br>
-                                                <span>{{ $santri->alamat->kecamatan ?? '-' }}</span><br>
-                                                <span>{{ $santri->alamat->kabupaten ?? '-' }}</span><br>
-                                                <span>{{ $santri->alamat->provinsi ?? '-' }}</span>
-                                            </div>
+                                        <span>Alamat</span><br>
+                                        <div class="ms-3 text-muted" style="max-width: 80%;">
+                                            {{ $santri->alamat ?? '-' }}
                                         </div>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>Kamar</span>
-                                        <span>{{ $santri->kamar->nama_kamar ?? '-' }}</span>
-                                    </li>
+
                                 </ul>
                             </div>
 
+
+                            {{-- === Pendidikan === --}}
                             <div class="col-md-6">
-                                <h5 style="color: #13DEB9;">Pendidikan</h5>
+                                <h5 class="text-success">Pendidikan</h5>
+
+                                @php
+                                    $formal = $santri->detail->firstWhere(fn($d) => $d->sekolah);
+                                @endphp
+
+                                {{-- Formal --}}
                                 <div class="card mb-3">
                                     <div class="card-body">
-                                        <h6 class="card-subtitle mb-2" style="color: #13DEB9;">Formal</h6>
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span class="text-muted">Sekolah</span>
-                                            <span class="fw-medium">
-                                                @if ($santri->kelasFormal->first())
-                                                    {{ $santri->kelasFormal->first()->jenisSekolah->nama_sekolah ?? '-' }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </span>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Sekolah</span>
+                                            <span>{{ $formal->sekolah->nama_sekolah ?? '-' }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Kelas</span>
-                                            <span class="fw-medium">
-                                                @if ($santri->kelasFormal->first())
-                                                    {{ $santri->kelasFormal->first()->nama_kelas ?? '-' }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6 class="card-subtitle mb-2" style="color: #13DEB9;">Non-Formal</h6>
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span class="text-muted">Sekolah</span>
-                                            <span class="fw-medium">
-                                                @if ($santri->kelasNonFormal->first())
-                                                    {{ $santri->kelasNonFormal->first()->jenisSekolah->nama_sekolah ?? '-' }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </span>
+                                            <span>Kelas</span>
+                                            <span>{{ $formal->kelas->nama_kelas ?? '-' }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Kelas</span>
-                                            <span class="fw-medium">
-                                                @if ($santri->kelasNonFormal->first())
-                                                    {{ $santri->kelasNonFormal->first()->nama_kelas ?? '-' }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </span>
+                                            <span>Tahun Akademik</span>
+                                            <span>{{ $formal->tahunAkademik->tahun_akademik ?? '-' }}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row mt-3">
-                            <div class="col-12">
-                                <h5 style="color: #13DEB9;">Kontak</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>No. HP</span>
-                                        <span>{{ $santri->orangTua->ayah->no_whatsapp ?? '-' }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>Email</span>
-                                        <span>{{ $santri->orangTua->user->email ?? '-' }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>Orang Tua</span>
-                                        <span>{{ $santri->orangTua->ayah->nama ?? '-' }} /
-                                            {{ $santri->orangTua->ibu->nama ?? '-' }}</span>
-                                    </li>
-                                </ul>
+                            {{-- Kontak --}}
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h5 class="text-success">Kontak & Orang Tua</h5>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>No. HP</span>
+                                            <span>{{ $santri->no_hp ?? '-' }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Ayah</span>
+                                            <span>{{ $santri->ayah ?? '-' }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Ibu</span>
+                                            <span>{{ $santri->ibu ?? '-' }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
+                        </div> {{-- end col-md-8 --}}
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-@endsection
+    @endsection

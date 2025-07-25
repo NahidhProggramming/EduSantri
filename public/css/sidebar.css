@@ -1,67 +1,77 @@
-/* Dropdown Menu Styles */
-.dropdown-menu {
-    display: none;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f9fa;
-    border-radius: 5px;
-    position: relative;
-    top: 0;
-    left: 0;
-}
+@props(['active' => ''])
 
-.dropdown-menu .dropdown-item {
-    padding: 10px 15px;
-    text-decoration: none;
-    color: #000;
-    display: block;
-}
+<nav class="navbar navbar-expand-lg navbar-dark py-3" style="background-color: #13DEB9;">
+   <style>
+    .custom-navbar {
+        background-color: #13DEB9 !important;
+    }
 
-.dropdown-menu .dropdown-item:hover {
-    background-color: #e9ecef;
-    color: #000;
-}
+    .navbar-brand span {
+        color: #ffffff;
+    }
 
-.sidebar-item.dropdown .sidebar-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
+    .navbar-nav .nav-link {
+        color: #ffffff !important;
+        font-weight: 500;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+        transition: all 0.25s;
+    }
 
-/* sidebar.css
-.sidebar-item a:hover {
-    background-color: #13deb9 !important;
-    color: white !important;
-}
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+        opacity: 0.9;
+        text-decoration: underline;
+    }
 
-.sidebar-item a.active {
-    background-color: #13deb9 !important;
-    color: white !important;
-}
-.sidebar-item .sidebar-link:hover.has-arrow:after {
-    border-color: #13deb9 !important;
-}
-.sidebar-nav ul .sidebar-item .sidebar-link.active:hover.has-arrow:after {
-    border-color: #fff !important;
-} */
+    .btn-logout {
+        border-color: #fff;
+    }
 
-.sidebar-item .sidebar-link:hover {
-    background-color: rgba(93, 135, 255, 0.1) !important;
-    color: #13deb9 !important;
-}
-.sidebar-nav ul .sidebar-item .sidebar-link:hover.has-arrow:after {
-    border-color: #13deb9 !important;
-}
-.sidebar-nav ul .sidebar-item .sidebar-link.active:hover.has-arrow:after {
-    border-color: #fff !important;
-}
-.sidebar-nav ul .sidebar-item .link-disabled {
-    opacity: 0.38 !important;
-}
-.sidebar-nav ul .sidebar-item.selected > .sidebar-link,
-.sidebar-nav ul .sidebar-item.selected > .sidebar-link.active,
-.sidebar-nav ul .sidebar-item > .sidebar-link.active {
-    background-color: #13deb9 !important;
-    color: #fff !important;
-}
+    .btn-logout:hover {
+        background-color: #ffffff22;
+    }
+</style>
+
+
+    <div class="container">
+        {{-- Brand --}}
+        <a class="navbar-brand fs-4 fw-bold" href="{{ route('home') }}">
+            Edu <span>Santri</span>
+        </a>
+
+        {{-- Toggler --}}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        {{-- Links --}}
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto gap-lg-2">
+                <li class="nav-item">
+                    <a class="nav-link {{ $active==='home' ? 'active' : '' }}"
+                       href="{{ route('home') }}">Beranda</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $active==='profile' ? 'active' : '' }}"
+                       href="#">Profil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $active==='contact' ? 'active' : '' }}"
+                       href="#">Kontak</a>
+                </li>
+            </ul>
+
+            {{-- Auth --}}
+            @auth
+                <form method="POST" action="{{ route('logout') }}" class="d-flex">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-light btn-sm btn-logout">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </button>
+                </form>
+            @endauth
+        </div>
+    </div>
+</nav>

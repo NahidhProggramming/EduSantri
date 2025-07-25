@@ -35,14 +35,14 @@
                 <table class="table table-striped">
                     <thead>
                         <tr class="text-center">
-                            <th>No</th>
+                            {{-- <th>No</th> --}}
+                            <th>Aksi</th>
                             <th>NIP</th>
                             <th>Nama Guru</th>
                             <th>Jenis Kelamin</th>
                             <th>Tanggal Lahir</th>
                             <th>Alamat</th>
                             <th>No WhatsApp</th>
-                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="guru-table-body">
@@ -157,9 +157,9 @@
                                     <input type="tel" name="no_hp" id="edit_no_hp" class="form-control" required>
                                 </div>
 
-                                 <div class="modal-footer">
-                                <button type="submit" class="btn btn-warning">Update</button>
-                            </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-warning">Update</button>
+                                </div>
                             </div>
                         </div>
                     </form>

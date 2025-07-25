@@ -13,6 +13,6 @@ class MataPelajaran extends Model
 
     public function pengampuMapel()
     {
-        return $this->hasMany(PengampuMapel::class, 'mata_pelajaran_id');
+        return $this->hasMany(MataPelajaran::class, 'mata_pelajaran_id');
     }
 }

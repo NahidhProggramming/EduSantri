@@ -1,41 +1,64 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Cetak Semua Rapor</title>
     <style>
         body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
             color: #000;
+            margin: 0;
+            padding: 30px;
         }
 
         .page-break {
             page-break-after: always;
         }
 
+        .container {
+            width: 100%;
+        }
+
         .header {
             text-align: center;
+            border-bottom: 3px double #000;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 20pt;
+            margin: 0;
+            text-transform: uppercase;
         }
 
         .header h2 {
-            margin: 0;
-            font-size: 20px;
+            font-size: 14pt;
+            margin: 5px 0;
+        }
+
+        .header p {
+            font-size: 10pt;
+            margin: 2px 0;
         }
 
         .info-table {
             width: 100%;
             margin-bottom: 20px;
+            border-spacing: 5px;
         }
 
         .info-table td {
-            padding: 5px;
+            vertical-align: top;
+            padding: 4px;
         }
 
         table.nilai {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
 
         table.nilai th,
@@ -45,17 +68,33 @@
             text-align: center;
         }
 
-        .footer {
-            margin-top: 40px;
-            text-align: right;
+        table.nilai th {
+            background-color: #eaeaea;
         }
 
-        .ttd {
-            margin-top: 80px;
-            text-align: right;
+        .deskripsi {
+            margin-top: 10px;
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: justify;
+        }
+
+        .footer {
+            margin-top: 50px;
+            width: 100%;
+        }
+
+        .footer td {
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .signature {
+            height: 80px;
         }
     </style>
 </head>
+
 <body>
 
     @foreach ($details as $detail)
@@ -64,12 +103,14 @@
             $kelas = $detail->kelas;
             $sekolah = $detail->sekolah;
             $tahun = $detail->tahunAkademik;
+            $waliKelas = $kelas->waliKelas->nama_guru ?? '-';
+            $nip = $kelas->waliKelas->nip ?? '-';
 
             $nilaiList = \App\Models\Nilai::where('detail_id', $detail->id_detail)
                 ->with('jadwal.mataPelajaran')
                 ->get()
                 ->map(function ($item) {
-                    return (object)[
+                    return (object) [
                         'mapel' => $item->jadwal->mataPelajaran->nama_mapel ?? '-',
                         'nilai_sumatif' => $item->nilai_sumatif,
                         'nilai_pas' => $item->nilai_pas,
@@ -78,100 +119,122 @@
                 });
         @endphp
 
-        <div class="header">
-            <h2>RAPOR SANTRI</h2>
-            <p>Pondok Pesantren Darul Lughah Wal Karomah</p>
-        </div>
+        <div class="container">
+            <div class="header">
+                <h1>RAPOR SANTRI</h1>
+                <h2>Pondok Pesantren Darul Lughah Wal Karomah</h2>
+                <p>Jl. Madyen Panjaitan No.12 Sidomukti, Kraksaan, Probolinggo</p>
+            </div>
 
-        <table class="info-table">
-            <tr>
-                <td><strong>Nama</strong></td>
-                <td>: {{ $santri->nama_santri }}</td>
-                <td><strong>NIS</strong></td>
-                <td>: {{ $santri->nis }}</td>
-            </tr>
-            <tr>
-                <td><strong>Kelas</strong></td>
-                <td>: {{ $kelas->nama_kelas }}</td>
-                <td><strong>Sekolah</strong></td>
-                <td>: {{ $sekolah->nama_sekolah }}</td>
-            </tr>
-            <tr>
-                <td><strong>Tahun Akademik</strong></td>
-                <td colspan="3">: {{ $tahun->tahun_akademik }} - Semester {{ $tahun->semester }}</td>
-            </tr>
-        </table>
-
-        <table class="nilai">
-            <thead>
+            <table class="info-table">
                 <tr>
-                    <th>No</th>
-                    <th>Mata Pelajaran</th>
-                    <th>Sumatif</th>
-                    <th>PAS</th>
-                    <th>PAT</th>
-                    <th>Rata-rata</th>
+                    <td><strong>Nama Santri</strong></td>
+                    <td>: {{ $santri->nama_santri }}</td>
+                    <td><strong>NIS</strong></td>
+                    <td>: {{ $santri->nis }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                @php $total = 0; @endphp
-                @foreach ($nilaiList as $i => $n)
-                    @php
-                        $rata = round(($n->nilai_sumatif + $n->nilai_pas + $n->nilai_pat) / 3, 2);
-                        $total += $rata;
-                    @endphp
+                <tr>
+                    <td><strong>Kelas</strong></td>
+                    <td>: {{ $kelas->nama_kelas }}</td>
+                    <td><strong>Sekolah</strong></td>
+                    <td>: {{ $sekolah->nama_sekolah }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Tahun Akademik</strong></td>
+                    <td colspan="3">: {{ $tahun->tahun_akademik }} - Semester {{ $tahun->semester }}</td>
+                </tr>
+            </table>
+
+            <table class="nilai">
+                <thead>
                     <tr>
-                        <td>{{ $i + 1 }}</td>
-                        <td style="text-align: left;">{{ $n->mapel }}</td>
-                        <td>{{ $n->nilai_sumatif ?? '-' }}</td>
-                        <td>{{ $n->nilai_pas ?? '-' }}</td>
-                        <td>{{ $n->nilai_pat ?? '-' }}</td>
-                        <td>{{ $rata }}</td>
+                        <th>No</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Nilai Sumatif</th>
+                        <th>Nilai PAS</th>
+                        <th>Nilai PAT</th>
+                        <th>Rata-rata</th>
                     </tr>
-                @endforeach
+                </thead>
+                <tbody>
+                    @php
+                        $total = 0;
+                        $count = 0;
+                    @endphp
+                    @foreach ($nilaiList as $index => $n)
+                        @php
+                            $sumatif = floatval($n->nilai_sumatif);
+                            $pas = floatval($n->nilai_pas);
+                            $pat = floatval($n->nilai_pat);
+                            $isValid = is_numeric($sumatif) && is_numeric($pas) && is_numeric($pat);
+                            $rata = $isValid ? round(($sumatif + $pas + $pat) / 3, 2) : '-';
+                            if ($isValid) {
+                                $total += $rata;
+                                $count++;
+                            }
+                        @endphp
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td style="text-align: left;">{{ $n->mapel }}</td>
+                            <td>{{ $n->nilai_sumatif ?? '-' }}</td>
+                            <td>{{ $n->nilai_pas ?? '-' }}</td>
+                            <td>{{ $n->nilai_pat ?? '-' }}</td>
+                            <td>{{ $rata }}</td>
+                        </tr>
+                    @endforeach
 
-                @php
-                    $avg = count($nilaiList) > 0 ? round($total / count($nilaiList), 2) : 0;
-                    $predikat = match (true) {
-                        $avg >= 90 => 'A',
-                        $avg >= 80 => 'B',
-                        $avg >= 70 => 'C',
-                        $avg >= 60 => 'D',
-                        default => 'E',
-                    };
+                    @php
+                        $avg = $count > 0 ? round($total / $count, 2) : 0;
+                        $predikat = match (true) {
+                            $avg >= 90 => 'A',
+                            $avg >= 80 => 'B',
+                            $avg >= 70 => 'C',
+                            $avg >= 60 => 'D',
+                            default => 'E',
+                        };
 
-                    $deskripsi = match ($predikat) {
-                        'A' => 'Siswa menunjukkan pemahaman yang sangat baik dalam materi pelajaran. Kemampuan analisis dan pemecahan masalahnya sangat baik. Terus pertahankan dan kembangkan potensi yang dimiliki.',
-                        'B' => 'Siswa telah mencapai pemahaman yang baik dalam materi pelajaran. Perlu ditingkatkan lagi dalam pemecahan masalah atau analisis untuk hasil yang lebih optimal.',
-                        'C' => 'Siswa perlu lebih berusaha memahami materi. Bimbingan lebih lanjut dalam penguasaan konsep sangat dianjurkan.',
-                        'D' => 'Siswa memerlukan bimbingan intensif dan perhatian khusus dalam penguasaan materi pelajaran.',
-                        default => 'Siswa sangat membutuhkan pendampingan khusus. Strategi belajar yang lebih tepat perlu diterapkan.',
-                    };
-                @endphp
+                        $deskripsi = match ($predikat) {
+                             'A' => 'Santri menunjukkan pemahaman yang sangat baik dalam materi pelajaran. Kemampuan analisis dan pemecahan masalahnya sangat baik. Terus pertahankan dan kembangkan potensi yang dimiliki.',
+                            'B' => 'Santri telah mencapai pemahaman yang baik dalam materi pelajaran. Perlu ditingkatkan lagi dalam pemecahan masalah atau analisis untuk hasil lebih optimal. Secara keseluruhan menunjukkan perkembangan yang baik dalam pembelajaran dan memiliki sikap yang positif terhadap proses belajar.',
+                            'C' => 'Santri perlu lebih berusaha memahami materi. Perlu bimbingan lebih lanjut dalam penguasaan konsep. Secara umum menunjukkan usaha yang cukup, namun masih perlu peningkatan dalam beberapa aspek.',
+                            'D' => 'Santri memerlukan bimbingan intensif. Perlu perhatian khusus agar dapat mengikuti pembelajaran. Disarankan untuk lebih serius dalam belajar dan memanfaatkan waktu dengan baik.',
+                            'E' => 'Santri sangat membutuhkan pendampingan karena belum mampu memahami materi dengan baik. Perlu adanya kerja sama antara orang tua dan pihak sekolah untuk meningkatkan motivasi belajar.',
+                            default => '-',
+                        };
+                    @endphp
 
+                    <tr>
+                        <td colspan="5" style="text-align: right;"><strong>Rata-rata Keseluruhan</strong></td>
+                        <td><strong>{{ $avg }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align: right;"><strong>Predikat</strong></td>
+                        <td><strong>{{ $predikat }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="deskripsi">
+                <strong>Deskripsi Umum:</strong><br>
+                {{ $deskripsi }}
+            </div>
+
+            <table class="footer">
                 <tr>
-                    <td colspan="5"><strong>Rata-rata Keseluruhan</strong></td>
-                    <td><strong>{{ $avg }}</strong></td>
+                    <td>Mengetahui,<br>Orang Tua/Wali</td>
+                    <td>{{ $tahun->tempat }},
+                        {{ \Carbon\Carbon::parse($tahun->tanggal)->translatedFormat('d F Y') }}<br>Wali Kelas</td>
                 </tr>
-                <tr>
-                    <td colspan="5"><strong>Predikat</strong></td>
-                    <td><strong>{{ $predikat }}</strong></td>
+                <tr class="signature">
+                    <td><strong>{{ $santri->ayah ?? '-' }}</strong></td>
+                    <td><strong>{{ $waliKelas }}</strong><br>NIP: {{ $nip }}</td>
                 </tr>
-                <tr>
-                    <td colspan="6" style="text-align: left;"><strong>Deskripsi:</strong> {{ $deskripsi }}</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="ttd">
-            <p>{{ $tahun->tempat }}, {{ \Carbon\Carbon::parse($tahun->tanggal)->translatedFormat('d F Y') }}</p>
-            <p>Wali Kelas</p>
-            <br><br><br>
-            <p><strong>..................................</strong></p>
+            </table>
         </div>
 
         <div class="page-break"></div>
     @endforeach
 
 </body>
+
 </html>

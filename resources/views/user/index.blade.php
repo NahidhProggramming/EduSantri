@@ -10,34 +10,42 @@
 
                 <!-- Filter Role & Search -->
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 flex-wrap">
                         <!-- Filter Role -->
                         <form action="{{ route('users.index') }}" method="GET" class="d-flex align-items-center">
-                            <select name="role" class="form-select rounded-pill" onchange="this.form.submit()">
-                                <option value="">-- Pilih Role --</option>
-                                <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="guru" {{ request('role') == 'guru' ? 'selected' : '' }}>Guru</option>
-                                <option value="wali_santri" {{ request('role') == 'wali_santri' ? 'selected' : '' }}>Wali Santri</option>
-                                <option value="wali_asuh" {{ request('role') == 'wali_asuh' ? 'selected' : '' }}>Wali Asuh</option>
-                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-0 rounded-pill shadow-sm px-3">
+                                    <i class="ti ti-filter"></i>
+                                </span>
+                                <select name="role" id="role"
+                                    class="form-select form-select-sm rounded-pill shadow-sm" onchange="this.form.submit()">
+                                    <option value="">Semua Role</option>
+                                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                    <option value="guru" {{ request('role') == 'guru' ? 'selected' : '' }}>Guru</option>
+                                    <option value="wali_santri" {{ request('role') == 'wali_santri' ? 'selected' : '' }}>
+                                        Wali Santri</option>
+                                    <option value="kesiswaan" {{ request('role') == 'kesiswaan' ? 'selected' : '' }}>
+                                        Kesiswaan</option>
+                                </select>
+                            </div>
                         </form>
 
                         <!-- Tombol Tambah -->
-                        <a href="{{ route('users.create') }}" class="btn btn-success rounded-pill px-4 py-2">
+                        <button class="btn btn-success rounded-pill px-4 py-2" data-bs-toggle="modal"
+                            data-bs-target="#modalTambahUser">
                             <i class="ti ti-plus me-2"></i>Tambah User
-                        </a>
+                        </button>
                     </div>
 
                     <!-- Search -->
-                    <form action="{{ route('users.index') }}" method="GET" class="d-flex">
-                        <input type="hidden" name="role" value="{{ request('role') }}">
+                    <form action="{{ route('user.index') }}" method="GET" class="d-flex">
                         <div class="input-group">
-                            <input type="text" name="search" class="form-control rounded-start-pill"
+                            <input type="text" name="search" class="form-control rounded-pill shadow-sm"
                                 placeholder="Cari Nama User..." value="{{ request('search') }}">
-                            <button type="submit" class="btn btn-success rounded-end-pill">Cari</button>
                         </div>
                     </form>
                 </div>
+
 
 
                 <!-- Tabel User -->
@@ -45,66 +53,166 @@
                     <table class="table table-striped table-hover shadow-sm">
                         <thead>
                             <tr class="text-center">
-                                <th>No</th>
+                                {{-- <th>No</th> --}}
+                                 <th>Aksi</th>
                                 <th>Nama</th>
                                 <th>Username</th>
                                 <th>Role</th>
-                                <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse ($users as $index => $user)
-                                <tr class="text-center">
-                                    <td>{{ $index + $users->firstItem() }}</td>
-                                    <td>{{ $user->name }}</td>
-                                    <td>
-                                        @if ($user->hasRole('admin'))
-                                            {{ $user->email }}
-                                        @else
-                                            {{ $user->username }}
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($user->roles)
-                                            {{ str_replace('_', ' ', ucwords($user->roles->first()->name ?? '-', '_')) }}
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="d-flex flex-column flex-md-row align-items-center gap-2">
-                                            <a href="{{ route('users.edit', $user->id) }}"
-                                                class="btn btn-warning btn-sm rounded-pill d-flex align-items-center gap-1">
-                                                <i class="ti ti-edit"></i> Edit
-                                            </a>
-                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                                style="display: inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="btn btn-danger btn-sm rounded-pill d-flex align-items-center gap-1"
-                                                    onclick="return confirm('Yakin ingin menghapus user ini?')">
-                                                    <i class="ti ti-trash"></i> Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center">Tidak ada data user.</td>
-                                </tr>
-                            @endforelse
+                        <tbody id="user-table-body">
+                            @include('user.partials.table', ['users' => $users])
                         </tbody>
                     </table>
 
-                    {{-- Pagination --}}
-                    <div class="mt-3">
-                        {{ $users->links() }}
+                    <div id="pagination-links">
+                        @include('user.partials.pagination', ['users' => $users])
                     </div>
                 </div>
 
             </div>
         </div>
     </div>
+    <!-- Modal Tambah User -->
+    <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-labelledby="modalTambahUserLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTambahUserLabel">Tambah Data User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <form action="{{ route('users.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nama</label>
+                                <input type="text" name="name" class="form-control" required
+                                    placeholder="Nama Lengkap">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Username</label>
+                                <input type="text" name="username" class="form-control" required placeholder="Username">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" required placeholder="Email">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" required placeholder="Password">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Role</label>
+                                <select name="role" class="form-select" required>
+                                    <option value="">-- Pilih Role --</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="guru">Guru</option>
+                                    <option value="wali_santri">Wali Santri</option>
+                                    <option value="kesiswaan">Kesiswaan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Edit User -->
+    <div class="modal fade" id="modalEditUser" tabindex="-1" aria-labelledby="modalEditUserLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalEditUserLabel">Edit Data User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <form id="formEditUser" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nama</label>
+                                <input type="text" name="name" id="edit_name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Username</label>
+                                <input type="text" name="username" id="edit_username" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" id="edit_email" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Role</label>
+                                <select name="role" id="edit_role" class="form-select" required>
+                                    <option value="admin">Admin</option>
+                                    <option value="guru">Guru</option>
+                                    <option value="wali_santri">Wali Santri</option>
+                                    <option value="kesiswaan">Kesiswaan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Password Baru <small class="text-muted">(Kosongkan jika tidak
+                                        diubah)</small></label>
+                                <input type="password" name="password" class="form-control"
+                                    placeholder="Password baru (opsional)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-warning">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="search"]');
+            const searchForm = searchInput.closest('form');
+            const tableBody = document.getElementById('user-table-body');
+            const paginationLinks = document.getElementById('pagination-links');
+            let debounceTimeout;
+
+
+            document.addEventListener('click', function(event) {
+                if (event.target.closest('#pagination-links a')) {
+                    event.preventDefault();
+                    const url = event.target.closest('a').href;
+                    fetch(url, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            tableBody.innerHTML = data.table;
+                            paginationLinks.innerHTML = data.pagination;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching pagination results:', error);
+                        });
+                }
+            });
+            $(document).on('click', '.btn-edit-user', function() {
+                const data = $(this).data();
+
+                $('#edit_name').val(data.name);
+                $('#edit_username').val(data.username);
+                $('#edit_email').val(data.email);
+                $('#edit_role').val(data.role);
+
+                let updateUrl = `/users/${data.id}`;
+                $('#formEditUser').attr('action', updateUrl);
+
+                $('#modalEditUser').modal('show');
+            });
+
+        });
+    </script>
 @endsection

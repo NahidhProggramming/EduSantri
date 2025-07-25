@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Traits\HasRoles;
 
 class LoginController extends Controller
 {
@@ -17,73 +16,66 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'login' => 'required|string',
+            'login'    => 'required|string',
             'password' => 'required|string',
         ]);
 
-        $login = $request->input('login');
-        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        // email vs username
+        $login  = $request->input('login');
+        $field  = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        // Validasi format username
+        // validasi extra utk username
         if ($field === 'username' && !preg_match('/^[a-zA-Z0-9_]+$/', $login)) {
-            return back()->withErrors([
-                'login' => 'Format username tidak valid. Hanya boleh mengandung huruf, angka dan underscore.'
-            ]);
+            return back()->withErrors(['login' => 'Format username tidak valid.']);
         }
 
-        $credentials = [
-            $field => $login,
-            'password' => $request->password,
-        ];
+        $credentials = [$field => $login, 'password' => $request->password];
 
+        // ======== AUTH ATTEMPT ========
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-
             /** @var \App\Models\User $user */
             $user = Auth::user();
 
-            // Verify Spatie Permission is properly loaded
+            // ---------- pastikan Spatie Permission tersedia ----------
             if (!method_exists($user, 'hasRole')) {
                 Auth::logout();
-                return back()->withErrors(['login' => 'Sistem autentikasi tidak berfungsi dengan baik.']);
+                return back()->withErrors(['login' => 'Sistem role belum dikonfigurasi.']);
             }
 
-            // Check if user has any roles assigned
-            if ($user->roles->isEmpty()) {
+            // ---------- user harus punya role terdaftar ----------
+            $allowedRoles = ['admin', 'guru', 'kesiswaan', 'wali_santri'];
+            $userRole     = $user->roles->pluck('name')->first();   // ambil satu role (atau cek multi)
+
+            if (!$userRole || !in_array($userRole, $allowedRoles)) {
                 Auth::logout();
-                return back()->withErrors(['login' => 'Akun Anda tidak memiliki role yang valid.']);
+                return back()->withErrors([
+                    'login' => 'Akun Anda tidak memiliki izin akses aplikasi.'
+                ]);
             }
 
-            // Validate login method based on role
-            $isAdmin = $user->hasRole('admin');
-
-            if ($field === 'email' && !$isAdmin) {
+            // ---------- validasi metode login untuk admin ----------
+            if ($userRole === 'admin' && $field !== 'email') {
                 Auth::logout();
-                return back()->withErrors(['login' => 'Akses hanya untuk admin.']);
+                return back()->withErrors(['login' => 'Admin harus login memakai email.']);
             }
 
-            if ($field === 'username' && $isAdmin) {
-                Auth::logout();
-                return back()->withErrors(['login' => 'Admin harus login menggunakan email.']);
-            }
-
-            // Redirect berdasarkan role
-            $redirectTo = match (true) {
-                $user->hasRole('admin') => route('user.index'),
-                $user->hasRole('guru') => route('nilai.index'),
-                default => route('home') // Redirect to new home page for regular users
+            // ---------- redirect berdasarkan role ----------
+            $redirectTo = match ($userRole) {
+                'admin'      => route('admin.dashboard'),
+                'guru'       => route('nilai.dashboard'),
+                'kesiswaan'  => route('kesiswaan.dashboard'),
+                'wali_santri'=> route('home'),
             };
 
-            return $request->remember
-                ? redirect($redirectTo)->with('status', 'Anda akan tetap login selama 120 menit')
-                : redirect($redirectTo);
+            return redirect()->intended($redirectTo);
         }
 
+        // ======== GAGAL AUTH ========
         return back()->withErrors([
             'login' => 'Login gagal! Periksa email/username dan password Anda.',
         ]);
     }
-
 
     public function logout(Request $request)
     {

@@ -15,7 +15,6 @@ class Pelanggaran extends Model
     protected $fillable = [
         'santri_nis',
         'jenis_pelanggaran_id',
-        'tingkat_pelanggaran_id',
         'deskripsi',
         'tanggal',
         'file_surat',
@@ -30,10 +29,5 @@ class Pelanggaran extends Model
     public function jenisPelanggaran()
     {
         return $this->belongsTo(JenisPelanggaran::class, 'jenis_pelanggaran_id');
-    }
-
-    public function tingkatPelanggaran()
-    {
-        return $this->belongsTo(TingkatPelanggaran::class, 'tingkat_pelanggaran_id');
     }
 }

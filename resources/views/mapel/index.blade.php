@@ -29,9 +29,9 @@
                 <table class="table table-striped">
                     <thead>
                         <tr class="text-center">
-                            <th>No</th>
-                            <th>Nama Mapel</th>
+                            {{-- <th>No</th> --}}
                             <th>Aksi</th>
+                            <th>Nama Mapel</th>
                         </tr>
                     </thead>
                     <tbody id="mapel-table-body">

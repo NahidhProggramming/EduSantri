@@ -35,10 +35,10 @@
                 <table class="table table-striped">
                     <thead>
                         <tr class="text-center">
-                            <th>No</th>
+                            {{-- <th>No</th> --}}
+                            <th>Aksi</th>
                             <th>Nama Kelas</th>
                             <th>Tingkat</th>
-                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="kelas-table-body">
@@ -74,6 +74,15 @@
                                 <label for="tingkat" class="form-label">Tingkat</label>
                                 <input type="text" name="tingkat" class="form-control" id="tingkat" required>
                             </div>
+                            <div class="mb-3">
+                                <label for="wali_kelas_id" class="form-label">Wali Kelas (Guru)</label>
+                                <select name="wali_kelas_id" class="form-select" id="wali_kelas_id">
+                                    <option value="">-- Pilih Wali Kelas --</option>
+                                    @foreach ($guruList as $guru)
+                                        <option value="{{ $guru->id_guru }}">{{ $guru->nama_guru }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-success">Simpan</button>
@@ -105,8 +114,20 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Tingkat</label>
-                                    <input type="text" name="tingkat" class="form-control" value="{{ $kelas->tingkat }}"
-                                        required>
+                                    <input type="text" name="tingkat" class="form-control"
+                                        value="{{ $kelas->tingkat }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="wali_kelas_id" class="form-label">Wali Kelas (Guru)</label>
+                                    <select name="wali_kelas_id" class="form-select">
+                                        <option value="">-- Pilih Wali Kelas --</option>
+                                        @foreach ($guruList as $guru)
+                                            <option value="{{ $guru->id_guru }}"
+                                                {{ $kelas->wali_kelas_id == $guru->id_guru ? 'selected' : '' }}>
+                                                {{ $guru->nama_guru }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
                             </div>

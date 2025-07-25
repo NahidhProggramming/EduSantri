@@ -3,7 +3,8 @@
     <!-- Sidebar scroll-->
     <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
-            <a href="/" class="text-nowrap logo-img">
+            <a href="{{ route(auth()->user()->hasRole('admin') ? 'admin.dashboard' : (auth()->user()->hasRole('guru') ? 'nilai.dashboard' : 'kesiswaan.dashboard')) }}"
+                class="text-nowrap logo-img">
                 <img src="{{ asset('images/logos/logo2.png') }}" width="200" alt="" />
             </a>
 
@@ -16,203 +17,24 @@
                 <i class="ti ti-x fs-8"></i>
             </div>
         </div>
-        <!-- Sidebar navigation-->
-        {{-- <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
-            <ul id="sidebarnav">
-                <li class="nav-small-cap">
-                    <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                    <span class="hide-menu">Home</span>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-layout-dashboard"></i>
-                        </span>
-                        <span class="hide-menu">Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-small-cap">
-                    <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                    <span class="hide-menu">Menu</span>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/santri" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-users"></i>
-                        </span>
-                        <span class="hide-menu">Data Santri</span>
-                    </a>
-                </li>
 
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/nilai" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-book"></i>
-                        </span>
-                        <span class="hide-menu">Nilai Akademik</span>
-                    </a>
-                </li>
-
-                <!-- Dashboard -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/dashboard" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-home"></i>
-                        </span>
-                        <span class="hide-menu">Dashboard</span>
-                    </a>
-                </li>
-
-                <!-- Master Data -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/santri" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-users"></i>
-                        </span>
-                        <span class="hide-menu">Data Santri</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/orang-tua" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-user-heart"></i>
-                        </span>
-                        <span class="hide-menu">Data Orang Tua</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/kelas" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-building-arch"></i>
-                        </span>
-                        <span class="hide-menu">Data Kelas & Sekolah</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/asrama" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-bed"></i>
-                        </span>
-                        <span class="hide-menu">Data Asrama</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/pelanggaran/poin" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-flag"></i>
-                        </span>
-                        <span class="hide-menu">Poin Pelanggaran</span>
-                    </a>
-                </li>
-
-                <!-- Akademik -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/akademik/input-nilai" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-pencil"></i>
-                        </span>
-                        <span class="hide-menu">Input Nilai Santri</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/akademik/data-nilai" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-list-details"></i>
-                        </span>
-                        <span class="hide-menu">Data Nilai</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/akademik/kenaikan-kelas" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-arrow-up"></i>
-                        </span>
-                        <span class="hide-menu">Kenaikan Kelas</span>
-                    </a>
-                </li>
-
-                <!-- Pelanggaran -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/pelanggaran/catat" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-alert-circle"></i>
-                        </span>
-                        <span class="hide-menu">Catat Pelanggaran</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/pelanggaran/rekap" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-file-info"></i>
-                        </span>
-                        <span class="hide-menu">Rekap Pelanggaran</span>
-                    </a>
-                </li>
-
-                <!-- Statistik -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/statistik/akademik" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-chart-bar"></i>
-                        </span>
-                        <span class="hide-menu">Statistik Akademik</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/statistik/pelanggaran" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-chart-pie"></i>
-                        </span>
-                        <span class="hide-menu">Statistik Pelanggaran</span>
-                    </a>
-                </li>
-
-                <!-- Pengaturan Notifikasi -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/pengaturan/notifikasi" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-bell"></i>
-                        </span>
-                        <span class="hide-menu">Pengaturan Notifikasi</span>
-                    </a>
-                </li>
-
-                <!-- Pengguna -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="/pengguna" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-user-cog"></i>
-                        </span>
-                        <span class="hide-menu">Pengguna & Akses</span>
-                    </a>
-                </li>
-
-            </ul>
-        </nav> --}}
 
         <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
             <ul id="sidebarnav">
                 <!-- Menu Umum -->
-                {{-- <li class="nav-small-cap">
-                    <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                    <span class="hide-menu">Home</span>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="#" aria-expanded="false">
-                        <span><i class="ti ti-layout-dashboard"></i></span>
-                        <span class="hide-menu">Dashboard</span>
-                    </a>
-                </li> --}}
+
                 @auth
                     @if (auth()->user()->hasRole('admin'))
+                        <li class="nav-small-cap">
+                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                            <span class="hide-menu">Home</span>
+                        </li>
+                        <li class="sidebar-item {{ request()->is('/dashboard-admin') ? 'active' : '' }}">
+                            <a class="sidebar-link d-flex align-items-center" href="{{ route('admin.dashboard') }}">
+                                <span><i class="ti ti-layout-dashboard"></i></span>
+                                <span class="hide-menu ms-2">Dashboard</span>
+                            </a>
+                        </li>
                         <!-- Menu Admin -->
                         <li class="nav-small-cap">
                             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
@@ -228,20 +50,20 @@
                                         class="dropdown-icon ti {{ request()->is('akademik*') ? 'ti-chevron-down' : 'ti-chevron-right' }} me-2"></i>
                                 </span>
                             </a>
-                            <ul class="collapse first-level ms-4"
+                            <ul class="collapse first-level ms-2"
                                 style="{{ request()->is('akademik*') ? 'display: block;' : 'display: none;' }}">
-                                <li class="sidebar-item {{ request()->is('akademik*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('akademik*') ? 'active' : '' }}">
                                     <a href="/akademik" class="sidebar-link d-flex align-items-center">
                                         <span>
                                             <i class="ti ti-calendar-event"></i>
                                         </span>
-                                        <span class="hide-menu ms-2">Tahun Akademik</span>
+                                        <span class="hide-menu">Tahun Akademik</span>
                                     </a>
                                 </li>
                                 <li class="sidebar-item {{ request()->is('tanggal-cetak*') ? 'active' : '' }}">
                                     <a href="{{ route('tanggal-cetak') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-calendar"></i></span>
-                                        <span class="hide-menu ms-2">Tanggal Cetak</span>
+                                        <span class="hide-menu">Tanggal Cetak</span>
                                     </a>
                                 </li>
                             </ul>
@@ -256,52 +78,53 @@
                                         class="dropdown-icon ti {{ request()->is('master*') ? 'ti-chevron-down' : 'ti-chevron-right' }} me-2"></i>
                                 </span>
                             </a>
-                            <ul class="collapse first-level ms-4"
+                            <ul class="collapse first-level ms-2"
                                 style="{{ request()->is('master*') ? 'display: block;' : 'display: none;' }}">
 
-                                <li class="sidebar-item {{ request()->is('master/siswa*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('master/siswa*') ? 'active' : '' }}">
                                     <a href="{{ route('santri.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-user"></i></span>
-                                        <span class="hide-menu ms-2">Data Siswa</span>
+                                        <span class="hide-menu">Data Siswa</span>
                                     </a>
                                 </li>
 
-                                <li class="sidebar-item {{ request()->is('master/guru*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('master/guru*') ? 'active' : '' }}">
                                     <a href="{{ route('guru.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-users"></i></span>
-                                        <span class="hide-menu ms-2">Data Guru</span>
+                                        <span class="hide-menu">Data Guru</span>
                                     </a>
                                 </li>
 
-                                <li class="sidebar-item {{ request()->is('master/matkul*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('master/matkul*') ? 'active' : '' }}">
                                     <a href="{{ route('mapel.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-book"></i></span>
-                                        <span class="hide-menu ms-2">Mata Pelajaran</span>
+                                        <span class="hide-menu">Mata Pelajaran</span>
                                     </a>
                                 </li>
 
-                                <li class="sidebar-item {{ request()->is('master/kelas*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('master/kelas*') ? 'active' : '' }}">
                                     <a href="{{ route('kelas.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-school"></i></span>
-                                        <span class="hide-menu ms-2">Data Kelas</span>
+                                        <span class="hide-menu">Data Kelas</span>
                                     </a>
                                 </li>
 
-                                <li class="sidebar-item {{ request()->is('master/user*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('master/user*') ? 'active' : '' }}">
                                     <a href="{{ route('sekolah.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-building"></i></span>
-                                        <span class="hide-menu ms-2">Data Sekolah</span>
+                                        <span class="hide-menu">Data Sekolah</span>
                                     </a>
                                 </li>
 
-                                <li class="sidebar-item {{ request()->is('master/user*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('master/user*') ? 'active' : '' }}">
                                     <a href="{{ route('user.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-user-circle"></i></span>
-                                        <span class="hide-menu ms-2">Data Pengguna</span>
+                                        <span class="hide-menu">Data Pengguna</span>
                                     </a>
                                 </li>
 
                             </ul>
+
                         </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link d-flex align-items-center justify-between toggle-dropdown"
@@ -314,27 +137,27 @@
                                 </span>
                             </a>
 
-                            <ul class="collapse first-level ms-4"
+                            <ul class="collapse first-level ms-2"
                                 style="{{ request()->is('rombel*') || request()->is('jadwal*') || request()->is('nilai*') ? 'display: block;' : 'display: none;' }}">
 
-                                <li class="sidebar-item {{ request()->is('rombel*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('rombel*') ? 'active' : '' }}">
                                     <a href="{{ route('rombel.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-users"></i></span>
-                                        <span class="hide-menu ms-2">Rombongan Belajar</span>
+                                        <span class="hide-menu">Rombongan Belajar</span>
                                     </a>
                                 </li>
 
-                                <li class="sidebar-item {{ request()->is('jadwal*') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('jadwal*') ? 'active' : '' }}">
                                     <a href="{{ route('jadwal.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-calendar-time"></i></span>
-                                        <span class="hide-menu ms-2">Jadwal Pelajaran</span>
+                                        <span class="hide-menu">Jadwal Pelajaran</span>
                                     </a>
                                 </li>
 
-                                <li class="sidebar-item {{ request()->is('nilai-all') ? 'active bg-light' : '' }}">
+                                <li class="sidebar-item {{ request()->is('nilai-all') ? 'active' : '' }}">
                                     <a href="{{ route('nilai.index') }}" class="sidebar-link d-flex align-items-center">
                                         <span><i class="ti ti-award"></i></span>
-                                        <span class="hide-menu ms-2">Nilai</span>
+                                        <span class="hide-menu">Nilai</span>
                                     </a>
                                 </li>
                             </ul>
@@ -345,48 +168,80 @@
                             <a class="sidebar-link d-flex align-items-center justify-between toggle-dropdown"
                                 href="javascript:void(0);">
                                 <span class="d-flex align-items-center">
-                                    <span><i class="ti ti-alert-triangle me-2"></i></span>
+                                    <i class="ti ti-alert-triangle me-2"></i>
                                     <span class="hide-menu">Pelanggaran</span>
-                                    <i
-                                        class="dropdown-icon ti{{ request()->is('pelanggaran*') || request()->is('laporan-pelanggaran*') ? 'ti-chevron-down' : 'ti-chevron-right' }} me-2">
-                                    </i>
                                 </span>
+                                <i
+                                    class="dropdown-icon ti
+                                    {{ request()->is('pelanggaran*') || request()->is('laporan-pelanggaran*')
+                                        ? 'ti-chevron-down'
+                                        : 'ti-chevron-right' }}"></i>
                             </a>
-                            <ul class="collapse first-level ms-4"
-                                style="{{ request()->is('pelanggaran*') || request()->is('laporan-pelanggaran*') ? 'display: block;' : 'display: none;' }}">
 
-                                <li class="sidebar-item {{ request()->is('pelanggaran') ? 'active bg-light' : '' }}">
+                            <ul class="collapse first-level ms-2"
+                                style="{{ request()->is('pelanggaran*') || request()->is('laporan-pelanggaran*') ? 'display:block' : '' }}">
+
+                                {{-- Data Pelanggaran --}}
+                                <li class="sidebar-item {{ request()->is('pelanggaran') ? 'active' : '' }}">
                                     <a href="{{ route('pelanggaran.index') }}"
                                         class="sidebar-link d-flex align-items-center">
-                                        <span><i class="ti ti-alert-triangle"></i></span>
-                                        <span class="hide-menu ms-2">Data Pelanggaran</span>
+                                        <i class="ti ti-alert-triangle"></i>
+                                        <span class="hide-menu">Data Pelanggaran</span>
                                     </a>
                                 </li>
-                                {{-- <li
-                                    class="sidebar-item {{ request()->is('laporan-pelanggaran*') ? 'active bg-light' : '' }}">
+
+                                {{-- Laporan Pelanggaran --}}
+                                <li class="sidebar-item {{ request()->is('laporan-pelanggaran*') ? 'active' : '' }}">
                                     <a href="{{ route('laporan.pelanggaran') }}"
                                         class="sidebar-link d-flex align-items-center">
-                                        <span><i class="ti ti-file-report"></i></span>
-                                        <span class="hide-menu ms-2">Laporan Pelanggaran</span>
+                                        <i class="ti ti-file-report"></i>
+                                        <span class="hide-menu">Laporan Pelanggaran</span>
                                     </a>
-                                </li> --}}
+                                </li>
                             </ul>
                         </li>
 
 
-                        {{-- Menu Monitoring (Terpisah) --}}
-                        <li class="sidebar-item {{ request()->is('monitoring*') ? 'active bg-light' : '' }}">
-                            <a href="#" class="sidebar-link d-flex align-items-center">
-                                <span><i class="ti ti-report-search"></i></span>
-                                <span class="hide-menu ms-2">Monitoring & Laporan</span>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link d-flex align-items-center justify-between toggle-dropdown"
+                                href="javascript:void(0);">
+                                <span class="d-flex align-items-center">
+                                    <i class="ti ti-activity me-2"></i>
+                                    <span class="hide-menu">Monitoring</span>
+                                    <i
+                                        class="dropdown-icon ti
+                                        {{ request()->is('monitoring-pelanggaran*') || request()->is('monitoring-akademik*')
+                                            ? 'ti-chevron-down'
+                                            : 'ti-chevron-right' }} me-2"></i>
+                                </span>
                             </a>
+
+                            <ul class="collapse first-level ms-2"
+                                style="{{ request()->is('monitoring-pelanggaran*') || request()->is('monitoring-akademik*') ? 'display: block;' : 'display: none;' }}">
+
+                                <li class="sidebar-item {{ request()->is('monitoring-pelanggaran*') ? 'active' : '' }}">
+                                    <a href="{{ route('monitoring.pelanggaran') }}"
+                                        class="sidebar-link d-flex align-items-center">
+                                        <span><i class="ti ti-alert-triangle me-2"></i></span>
+                                        <span class="hide-menu">Monitoring Pelanggaran</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item {{ request()->is('monitoring-akademik*') ? 'active' : '' }}">
+                                    <a href="{{ route('monitoring.akademik') }}"
+                                        class="sidebar-link d-flex align-items-center">
+                                        <span><i class="ti ti-school"></i></span>
+                                        <span class="hide-menu">Monitoring Akademik</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     @elseif(auth()->user()->hasRole('guru'))
                         <li class="nav-small-cap">
                             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                             <span class="hide-menu">Home</span>
                         </li>
-                        <li class="sidebar-item {{ request()->is('/nilai') ? 'active bg-light' : '' }}">
+                        <li class="sidebar-item {{ request()->is('/nilai') ? 'active' : '' }}">
                             <a class="sidebar-link d-flex align-items-center" href="{{ route('nilai.dashboard') }}">
                                 <span><i class="ti ti-layout-dashboard"></i></span>
                                 <span class="hide-menu ms-2">Dashboard</span>
@@ -409,15 +264,15 @@
                                 </span>
                             </a>
 
-                            <ul class="collapse first-level ms-4"
+                            <ul class="collapse first-level ms-2"
                                 style="{{ request()->is('nilai/input*') ? 'display: block;' : 'display: none;' }}">
                                 @forelse ($jadwals as $jadwal)
                                     <li
-                                        class="sidebar-item {{ request()->is('nilai/input/' . $jadwal->id_jadwal) ? 'active bg-light' : '' }}">
+                                        class="sidebar-item {{ request()->is('nilai/input/' . $jadwal->id_jadwal) ? 'active' : '' }}">
                                         <a href="{{ route('nilai.input', $jadwal->id_jadwal) }}"
                                             class="sidebar-link d-flex align-items-center">
                                             <span><i class="ti ti-list-check"></i></span>
-                                            <span class="hide-menu ms-2">
+                                            <span class="hide-menu">
                                                 {{ $jadwal->mataPelajaran->nama_mapel ?? '-' }} -
                                                 {{ $jadwal->kelas->nama_kelas ?? '-' }}
                                             </span>
@@ -427,11 +282,129 @@
                                     <li class="sidebar-item">
                                         <a href="#" class="sidebar-link d-flex align-items-center text-muted">
                                             <span><i class="ti ti-alert-circle"></i></span>
-                                            <span class="hide-menu ms-2">Belum Ada Jadwal</span>
+                                            <span class="hide-menu">Belum Ada Jadwal</span>
                                         </a>
                                     </li>
                                 @endforelse
                             </ul>
+                        </li>
+                        @php
+                            $guru = \App\Models\Guru::where('user_id', auth()->id())->first();
+                            $isWaliKelas = false;
+
+                            if ($guru) {
+                                $isWaliKelas = \App\Models\Kelas::where('wali_kelas_id', $guru->id_guru)->exists();
+                            }
+                        @endphp
+
+                        @if ($isWaliKelas)
+                            <li class="sidebar-item {{ request()->is('pelanggaran') ? 'active' : '' }}">
+                                <a href="{{ route('pelanggaran.index') }}"
+                                    class="sidebar-link d-flex align-items-center">
+                                    <span><i class="ti ti-check"></i></span>
+                                    <span class="hide-menu ms-2">Verifikasi Pelanggaran</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                            <a class="sidebar-link d-flex align-items-center justify-between toggle-dropdown"
+                                href="javascript:void(0);">
+                                <span class="d-flex align-items-center">
+                                    <i class="ti ti-activity me-2"></i>
+                                    <span class="hide-menu">Monitoring</span>
+                                    <i
+                                        class="dropdown-icon ti
+                                        {{ request()->is('monitoring-pelanggaran*') || request()->is('monitoring-akademik*')
+                                            ? 'ti-chevron-down'
+                                            : 'ti-chevron-right' }} me-2"></i>
+                                </span>
+                            </a>
+
+                            <ul class="collapse first-level ms-2"
+                                style="{{ request()->is('monitoring-pelanggaran*') || request()->is('monitoring-akademik*') ? 'display: block;' : 'display: none;' }}">
+
+                                <li class="sidebar-item {{ request()->is('monitoring-pelanggaran*') ? 'active' : '' }}">
+                                    <a href="{{ route('monitoring.pelanggaran') }}"
+                                        class="sidebar-link d-flex align-items-center">
+                                        <span><i class="ti ti-alert-triangle me-2"></i></span>
+                                        <span class="hide-menu">Monitoring Pelanggaran</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item {{ request()->is('monitoring-akademik*') ? 'active' : '' }}">
+                                    <a href="{{ route('monitoring.akademik') }}"
+                                        class="sidebar-link d-flex align-items-center">
+                                        <span><i class="ti ti-school"></i></span>
+                                        <span class="hide-menu">Monitoring Akademik</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        @endif
+                    @elseif(auth()->user()->hasRole('kesiswaan'))
+                        <li class="nav-small-cap">
+                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                            <span class="hide-menu">Home</span>
+                        </li>
+                        <li class="sidebar-item {{ request()->is('dashboard-kesiswaan') ? 'active' : '' }}">
+
+                            <a class="sidebar-link d-flex align-items-center" href="{{ route('kesiswaan.dashboard') }}">
+                                <span><i class="ti ti-layout-dashboard"></i></span>
+                                <span class="hide-menu ms-2">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-small-cap">
+                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                            <span class="hide-menu">Menu</span>
+                        </li>
+                        <li class="sidebar-item">
+                            {{-- ===== HEADER DROPDOWN ===== --}}
+                            <a class="sidebar-link d-flex align-items-center toggle-dropdown" href="javascript:void(0);">
+                                <span class="d-flex align-items-center">
+                                    <i class="ti ti-alert-triangle me-2"></i>
+                                    <span class="hide-menu">Pelanggaran</span>
+                                </span>
+                                <i
+                                    class="dropdown-icon ti
+                                    {{ request()->is('pelanggaran*', 'jenis-pelanggaran*') ? 'ti-chevron-down' : 'ti-chevron-right' }}
+                                    ms-auto"></i>
+                            </a>
+
+                            {{-- ===== SUB‑MENU ===== --}}
+                            <ul class="collapse first-level ms-2"
+                                style="{{ request()->is('pelanggaran*', 'jenis-pelanggaran*') ? 'display:block' : '' }}">
+
+                                {{-- Data Pelanggaran --}}
+                                <li class="sidebar-item {{ request()->is('pelanggaran') ? 'active' : '' }}">
+                                    <a href="{{ route('pelanggaran.index') }}"
+                                        class="sidebar-link d-flex align-items-center">
+                                        <i class="ti ti-alert-triangle"></i>
+                                        <span class="hide-menu">Data Pelanggaran</span>
+                                    </a>
+                                </li>
+
+                                {{-- Jenis Pelanggaran (baru) --}}
+                                <li class="sidebar-item {{ request()->is('jenis-pelanggaran*') ? 'active' : '' }}">
+                                    <a href="{{ route('jenis.pelanggaran') }}"
+                                        class="sidebar-link d-flex align-items-center">
+                                        <i class="ti ti-list-details"></i>
+                                        <span class="hide-menu">Jenis Pelanggaran</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item {{ request()->is('laporan-pelanggaran*') ? 'active' : '' }}">
+                                    <a href="{{ route('laporan.pelanggaran') }}"
+                                        class="sidebar-link d-flex align-items-center">
+                                        <i class="ti ti-file-report"></i>
+                                        <span class="hide-menu">Laporan Pelanggaran</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="sidebar-item {{ request()->is('monitoring-pelanggaran*') ? 'active' : '' }}">
+                            <a href="{{ route('monitoring.pelanggaran') }}"
+                                class="sidebar-link d-flex align-items-center">
+                                <span><i class="ti ti-alert-triangle me-2"></i></span>
+                                <span class="hide-menu">Monitoring Pelanggaran</span>
+                            </a>
                         </li>
                     @else
                         <!-- Menu Santri -->
@@ -451,13 +424,14 @@
                     <li class="sidebar-item mt-auto">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="sidebar-link"
-                                style="border:none; background:none; width:100%; text-align:left">
+                            <button type="submit" class="sidebar-link d-flex align-items-center px-3 py-2 w-100"
+                                style="border: none; background: none; text-align: left;">
                                 <span><i class="ti ti-logout"></i></span>
-                                <span class="hide-menu">Logout</span>
+                                <span class="hide-menu ms-2">Logout</span>
                             </button>
                         </form>
                     </li>
+
                 @endauth
 
 

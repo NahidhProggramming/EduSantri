@@ -1,8 +1,7 @@
 @if ($mapels->count())
     @foreach ($mapels as $mapel)
         <tr class="text-center">
-            <td>{{ $loop->iteration + $mapels->firstItem() - 1 }}</td>
-            <td>{{ $mapel->nama_mapel }}</td>
+            {{-- <td>{{ $loop->iteration + $mapels->firstItem() - 1 }}</td> --}}
             <td>
                 <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-2">
                     <button type="button" class="btn btn-warning btn-sm rounded-pill d-flex align-items-center gap-1"
@@ -21,6 +20,7 @@
                     </form>
                 </div>
             </td>
+            <td>{{ $mapel->nama_mapel }}</td>
         </tr>
     @endforeach
 @else

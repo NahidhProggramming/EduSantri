@@ -56,11 +56,12 @@ class Detail extends Model
             ->select(
                 DB::raw('MIN(detail.id_detail) as id_detail'),
                 'kelas.nama_kelas',
+                'kelas.tingkat',
                 'sekolah.nama_sekolah',
                 'tahun_akademik.tahun_akademik',
                 DB::raw('COUNT(detail.santri_id) as jumlah_siswa')
             )
-            ->groupBy('kelas.nama_kelas', 'sekolah.nama_sekolah', 'tahun_akademik.tahun_akademik');
+            ->groupBy('kelas.nama_kelas', 'kelas.tingkat','sekolah.nama_sekolah', 'tahun_akademik.tahun_akademik');
 
         // Filter berdasarkan tahun yang dipilih
         if ($tahunId) {
@@ -68,5 +69,11 @@ class Detail extends Model
         }
 
         return $query->get();
+    }
+    public static function hapusSantriDariRombel($detailId, array $santriIds)
+    {
+        return self::where('id_detail', $detailId)
+            ->whereIn('santri_id', $santriIds)
+            ->delete();
     }
 }

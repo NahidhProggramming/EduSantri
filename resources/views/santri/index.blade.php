@@ -15,10 +15,9 @@
                             <i class="ti ti-plus"></i> Tambah Santri
                         </button>
 
-                        <a href="{{ route('santri.template') }}" class="btn btn-info rounded-pill">
+                          <a href="{{ route('pelanggaran.template') }}" class="btn btn-info rounded-pill">
                             <i class="ti ti-download"></i> Download Template
                         </a>
-
                         <button class="btn btn-secondary rounded-pill" data-bs-toggle="modal"
                             data-bs-target="#modalUploadExcel">
                             <i class="ti ti-upload"></i> Upload Excel
@@ -45,11 +44,11 @@
                     <table class="table table-striped table-hover shadow-sm">
                         <thead>
                             <tr class="text-center">
-                                <th>No</th>
+                                <th>Aksi</th>
+                                {{-- <th>No</th> --}}
                                 <th>Nama</th>
                                 <th>Jenis Kelamin</th>
                                 <th>Alamat</th>
-                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="santri-table-body">
@@ -264,11 +263,10 @@
             });
 
 
-            // Handle pagination link clicks
-            paginationLinks.addEventListener('click', function(event) {
-                if (event.target.tagName === 'A') {
+            document.addEventListener('click', function(event) {
+                if (event.target.closest('#pagination-links a')) {
                     event.preventDefault();
-                    const url = event.target.href;
+                    const url = event.target.closest('a').href;
                     fetch(url, {
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -284,6 +282,7 @@
                         });
                 }
             });
+
         });
     </script>
 @endsection

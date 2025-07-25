@@ -21,7 +21,6 @@
             @endforeach
         </div>
 
-
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <strong>Sukses!</strong> {{ session('success') }}
@@ -55,35 +54,39 @@
             </div>
         </div>
 
-
-
-        {{-- Tabel Jadwal --}}
-        <div id="jadwal-container" class="card d-none">
+        {{-- Tabel Jadwal (Tampil Kosong Saat Pertama) --}}
+        <div id="jadwal-container" class="card">
             <div class="card-body">
-                <h5 class="card-title fw-semibold mb-4" id="jadwal-title"></h5>
+                <h5 class="card-title fw-semibold mb-4" id="jadwal-title">Jadwal Kelas</h5>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light text-center">
                             <tr>
-                                <th>No</th>
+                                <th>Aksi</th>
+                                {{-- <th>No</th> --}}
+                                <th>Status</th>
                                 <th>Guru</th>
                                 <th>Mata Pelajaran</th>
                                 <th>Kelas</th>
                                 <th>Hari</th>
                                 <th>Jam Mulai</th>
                                 <th>Jam Selesai</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="jadwal-body" class="text-center">
-                            <!-- Jadwal akan dimuat -->
+                            <tr>
+                                <td colspan="9" class="text-muted py-5">
+                                    <i class="ti ti-calendar-off fs-5"></i>
+                                    <p class="mb-0 mt-2">Silakan pilih tahun akademik dan sekolah</p>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
     <!-- Modal Tutorial -->
     <div class="modal fade" id="modalTutorialJadwal" tabindex="-1" aria-labelledby="tutorialJadwalLabel"
         aria-hidden="true">
@@ -115,9 +118,9 @@
         </div>
     </div>
 
-
     @include('jadwal.partials.modal-create')
     @include('jadwal.partials.modal-edit')
+
     {{-- Script --}}
     <script>
         let selectedTahunId = null;
@@ -128,24 +131,48 @@
             selectedTahunText = tahunText;
 
             // Reset tampilan sebelumnya
-            document.getElementById('jadwal-container').classList.add('d-none');
             document.getElementById('jadwal-body').innerHTML = '';
-            document.getElementById('jadwal-title').textContent = '';
             document.getElementById('sekolah-container').classList.add('d-none');
             document.getElementById('sekolah-buttons').innerHTML = '';
 
+            // Tampilkan loading indicator
+            document.getElementById('jadwal-body').innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Memuat data sekolah...</p>
+                    </td>
+                </tr>
+            `;
+
             fetch(`/jadwal/tahun/${tahunId}`)
-                .then(res => res.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     const sekolahContainer = document.getElementById('sekolah-container');
                     const sekolahButtons = document.getElementById('sekolah-buttons');
 
                     if (data.length === 0) {
+                        document.getElementById('jadwal-body').innerHTML = `
+                            <tr>
+                                <td colspan="9" class="text-muted py-4">
+                                    <i class="ti ti-alert-circle fs-5"></i>
+                                    <p class="mb-0 mt-2">Tidak ada sekolah untuk tahun akademik ini</p>
+                                </td>
+                            </tr>
+                        `;
                         sekolahButtons.innerHTML = '<div class="text-muted">Tidak ada sekolah untuk tahun ini.</div>';
                         sekolahContainer.classList.remove('d-none');
                         return;
                     }
 
+                    sekolahButtons.innerHTML = '';
                     data.forEach(group => {
                         const button = document.createElement('button');
                         button.className = 'btn btn-outline-success rounded-pill px-4';
@@ -155,64 +182,126 @@
                     });
 
                     sekolahContainer.classList.remove('d-none');
+
+                    // Reset tabel ke keadaan awal
+                    document.getElementById('jadwal-body').innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-muted py-5">
+                                <i class="ti ti-calendar-off fs-5"></i>
+                                <p class="mb-0 mt-2">Silakan pilih sekolah</p>
+                            </td>
+                        </tr>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('jadwal-body').innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-danger py-4">
+                                <i class="ti ti-alert-circle fs-5"></i>
+                                <p class="mb-0 mt-2">Gagal memuat data sekolah</p>
+                                <small>${error.message}</small>
+                            </td>
+                        </tr>
+                    `;
                 });
         }
 
         function showJadwal(namaSekolah) {
+            // Tampilkan loading indicator
+            document.getElementById('jadwal-body').innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Memuat jadwal...</p>
+                    </td>
+                </tr>
+            `;
+
             fetch(`/jadwal/tahun/${selectedTahunId}`)
-                .then(res => res.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     const jadwalGroup = data.find(group => group.sekolah === namaSekolah);
-                    const container = document.getElementById('jadwal-container');
                     const tbody = document.getElementById('jadwal-body');
                     const title = document.getElementById('jadwal-title');
                     const csrfToken = '{{ csrf_token() }}';
 
-                    tbody.innerHTML = '';
+                    // Update title tabel
                     title.textContent = `Jadwal ${namaSekolah} - Tahun Akademik ${selectedTahunText}`;
-                    container.classList.remove('d-none');
+
+                    // Kosongkan tabel
+                    tbody.innerHTML = '';
 
                     if (!jadwalGroup || jadwalGroup.jadwals.length === 0) {
-                        tbody.innerHTML =
-                            '<tr><td colspan="9" class="text-muted text-center">Tidak ada jadwal</td></tr>';
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="9" class="text-muted py-4">
+                                    <i class="ti ti-calendar-off fs-5"></i>
+                                    <p class="mb-0 mt-2">Belum ada jadwal untuk sekolah ini</p>
+                                </td>
+                            </tr>
+                        `;
                         return;
                     }
 
                     jadwalGroup.jadwals.forEach((j, i) => {
                         tbody.innerHTML += `
                     <tr>
-                        <td>${i + 1}</td>
+                        <td class="text-center">
+                            <button onclick="editJadwal(${j.id_jadwal})" class="btn btn-sm btn-warning rounded-pill mb-1">
+                                <i class="ti ti-edit"></i>
+                                </button>
+                                <form method="POST" action="/jadwal/${j.id_jadwal}" class="d-inline">
+                                    <input type="hidden" name="_token" value="${csrfToken}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-sm btn-danger rounded-pill"
+                                    onclick="return confirm('Yakin ingin menghapus jadwal ini?')">
+                                    <i class="ti ti-trash"></i>
+                                    </button>
+                                    </form>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-${j.status === 'aktif' ? 'success' : 'danger'}">${j.status}</span>
+                                    </td>
                         <td>${j.guru}</td>
                         <td>${j.mapel}</td>
                         <td>${j.kelas}</td>
                         <td>${j.hari}</td>
                         <td>${j.jam_mulai}</td>
                         <td>${j.jam_selesai}</td>
-                        <td>
-                            <span class="badge bg-${j.status === 'aktif' ? 'success' : 'danger'}">${j.status}</span>
-                        </td>
-                       <td class="text-center">
-                            <button onclick="editJadwal(${j.id_jadwal})" class="btn btn-sm btn-warning rounded-pill mb-1">
-                                <i class="ti ti-edit"></i>
-                            </button>
-                            <form method="POST" action="/jadwal/${j.id_jadwal}" class="d-inline">
-                                <input type="hidden" name="_token" value="${csrfToken}">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="btn btn-sm btn-danger rounded-pill"
-                                    onclick="return confirm('Yakin ingin menghapus jadwal ini?')"><i class="ti ti-trash"></i></button>
-                            </form>
-
-                        </td>
                     </tr>
                 `;
                     });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-danger py-4">
+                                <i class="ti ti-alert-circle fs-5"></i>
+                                <p class="mb-0 mt-2">Gagal memuat jadwal</p>
+                                <small>${error.message}</small>
+                            </td>
+                        </tr>
+                    `;
                 });
         }
 
-
         function editJadwal(id) {
             fetch(`/jadwal/${id}/edit`)
-                .then(res => res.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     // Set form action
                     document.getElementById('formEditJadwal').action = `/jadwal/${id}`;
@@ -269,11 +358,14 @@
                     // Tampilkan modal edit
                     new bootstrap.Modal(document.getElementById('modalEditJadwal')).show();
                 })
-                .catch(err => alert('Gagal memuat data jadwal'));
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal memuat data jadwal: ' + error.message);
+                });
         }
 
-
-        document.getElementById('jam_mulai').addEventListener('change', function() {
+        // Event listener untuk input jam mulai (tambah jadwal baru)
+        document.getElementById('jam_mulai')?.addEventListener('change', function() {
             const jamMulai = this.value;
             if (!jamMulai) return;
 
